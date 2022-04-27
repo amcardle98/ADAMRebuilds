@@ -1,0 +1,52 @@
+
+<ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="mb-3">
+            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="text">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
+    </div>
+  </ng-template>
+
+<div class="container">
+    <div class="title" grid>
+        Welcome to {{title}} build
+    </div>
+    <div class="content">
+        <h5 class="descTitle">Description</h5>
+        <div class="description" style="padding-left: 10px;" (click)="open(content)">
+             {{project.description}}
+        </div>
+        <h5 class="updateTitle">Updates</h5>
+        <div class="updates">
+          {{project.updates}}
+        </div>
+        <h5 class="compTitle">Completed</h5>
+        <div class="completed">
+          {{project.completed}}
+        </div>
+    </div>
+    <div class="galleryBar">
+        <span><input type="file" (change)="upload($event)" accept="*.png.jpg"></span>
+        <button (click)="uploadImage()">Upload</button>
+
+        <span><h4>Gallery</h4></span>
+    </div>
+    <!-- <app-gallery></app-gallery> -->
+    <div class="gallery">
+        <div class="galleryContent a"></div>
+        <div class="galleryContent b"></div>    
+        <div class="galleryContent c"></div>    
+        <div class="galleryContent d"></div>    
+        <div class="galleryContent e"></div>    
+        <div class="galleryContent f"></div>    
+    </div>
+</div>

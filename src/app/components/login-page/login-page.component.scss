@@ -1,0 +1,28 @@
+button {
+    margin: 0 0 15px 0;
+}
+
+.displayTable {
+    display: flex;
+    justify-content: center;
+    
+}
+
+.displayTableCell {
+    background-color: rgb(0, 255, 255);
+    padding: 50px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 50px;
+    box-shadow: 1px 1px 10px rgb(63, 63, 63);
+}
+
+.btn {
+    border: solid;
+    border-width: .1px;
+    box-shadow: 1px 1px 6px rgb(0, 163, 163);
+}
+
+.formGroupControl{
+    margin: 10px;
+}

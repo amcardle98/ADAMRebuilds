@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "adamrebuilds-78c32": {
+      "hosting": {
+        "ADAMRebuilds": [
+          "adamrebuilds-78c32"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "adamrebuilds-78c32"
+  }
+}

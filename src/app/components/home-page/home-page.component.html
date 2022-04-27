@@ -1,0 +1,41 @@
+<div class="updatedText">
+    <h5>
+        {{updated}}
+    </h5>
+</div>
+<div class="containerTitle">
+    <h1>
+        Whats new!
+    </h1>
+    <button (click)="addPhoto()">
+        add
+    </button>
+</div>
+<div class="container">
+    <div class="containerItem">
+        <img [src]='this.downloadURL'/>
+    </div>
+    <div class="containerItem">
+        <div *ngFor="let item of project.galleryImages">
+            <img src={{item.imageUrl}} alt="">
+        </div>
+    </div>
+    <div class="containerItem">
+
+    </div>
+    <div class="containerItem">
+
+    </div>
+</div>
+<div class="divider">
+</div>
+<div class="containerTitle">
+    <h1>
+        Last week
+    </h1>
+</div>
+<div class="container">
+    <div class="containerItem">
+
+    </div>
+</div>

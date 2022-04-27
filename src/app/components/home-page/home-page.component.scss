@@ -1,0 +1,37 @@
+.container {
+  background-color: lightgrey;
+  display: flex;
+  width: 75%;
+  margin: auto;
+  padding-left: 50px;
+  padding-right: 50px;
+  border-radius: 15px;
+  box-shadow: 0px 5px 10px grey;
+}
+
+.containerItem {
+  width: 200px;
+  height: 200px;
+  margin: 15px 20px;
+}
+
+.updatedText {
+  text-align: right;
+  margin: 10px;
+}
+
+.containerTitle {
+  margin: 0 10%;
+}
+
+img {
+  height: 100%;
+
+}
+
+.divider {
+  border-bottom: 1px solid black ;
+  margin: 50px  auto;
+  width: 65%;
+  opacity: 50%;
+}
