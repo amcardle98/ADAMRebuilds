@@ -9,10 +9,6 @@ import { ProjectPageComponent } from './components/project-page/project-page.com
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { NavbarButtonComponent } from './widgets/navbar-button/navbar-button.component';
-import { Rx8PageComponent } from './pages/rx8-page/rx8-page.component';
-import { BmwPageComponent } from './pages/bmw-page/bmw-page.component';
-import { LegacyPageComponent } from './pages/legacy-page/legacy-page.component';
-import { AmgPageComponent } from './pages/amg-page/amg-page.component';
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { provideAuth,getAuth } from '@angular/fire/auth';
@@ -30,8 +26,12 @@ import { VerifyEmailComponent } from './components/verify-email/verify-email.com
 import { DropZoneDirective } from './drop-zone.directive';
 import { FileUploadComponent } from './services/file-upload/file-upload.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { User } from './services/user';
-
+import { GalleryImagesComponent } from './components/gallery-images/gallery-images.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DiscussionComponent } from './components/forum/discussion/discussion.component';
+import { PostComponent } from './components/forum/post/post.component';
 
 
 @NgModule({
@@ -42,16 +42,15 @@ import { User } from './services/user';
     LoginPageComponent,
     NavbarComponent,
     NavbarButtonComponent,
-    Rx8PageComponent,
-    BmwPageComponent,
-    LegacyPageComponent,
-    AmgPageComponent,
     ForumComponent,
     SignUpComponent,
     ForgotPasswordComponent,
     VerifyEmailComponent,
     DropZoneDirective,
-    FileUploadComponent
+    FileUploadComponent,
+    GalleryImagesComponent,
+    DiscussionComponent,
+    PostComponent
   ],
   imports: [
     BrowserModule,
@@ -64,7 +63,10 @@ import { User } from './services/user';
     AngularFirestoreModule,
     AngularFireStorageModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatGridListModule,
+    BrowserAnimationsModule,
+    MatProgressBarModule
   ],
   providers: [AuthService, AngularFirestore],
   bootstrap: [AppComponent]

@@ -1,6 +1,7 @@
 .container {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 50%;
+    grid-template-rows: 25% 50%;
     margin-left: auto;
 }
 
@@ -22,12 +23,11 @@
 
 
 .galleryBar {
-    width: 100%;
     grid-column-start: 2;
-    margin: auto;
     grid-row-start: 1;
-    padding-right: 50px;
-    padding-top: 100px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
 }
 
 .galleryBar span {
@@ -37,9 +37,8 @@
 
 .gallery{
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 10px;
-    grid-row: 2 / 3;
+    grid-column-start: 2;
+    grid-row-start: 2;
     margin-left: 50px;
     margin-right: 50px;
 }
@@ -104,7 +103,16 @@
     box-shadow: 1px 5px 5px grey;
 }
 
-.btn {
-    background-color: rgb(148, 255, 255);
-    border-radius: 10px;
+.ngContainer {
+    grid-row-start: 2;
+
+    .btn {
+        display: flex;
+        margin: 20px;
+        margin-left:20%;
+        background-color: rgb(148, 255, 255);
+        border-radius: 10px;
+        justify-content: center;
+        align-items: center;
+    }
 }

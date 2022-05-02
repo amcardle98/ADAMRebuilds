@@ -1,3 +1,4 @@
+import { AngularFirestoreDocument } from "@angular/fire/compat/firestore";
 import { UserInfo } from "firebase/auth";
 
 export interface Roles {
@@ -16,10 +17,10 @@ export class User {
 
     firebaseAuthData: UserInfo;
 
-    constructor(authData: UserInfo) {
+    constructor(authData: UserInfo, roles: Roles) {
         this.email = authData.email
         this.photoURL = authData.photoURL
-        this.roles = { reader: true}
+        this.roles = roles
         this.displayName = authData.displayName
         this.emailVerified = true;
         this.uid = authData.uid;

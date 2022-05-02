@@ -1,5 +1,5 @@
 
-<ng-template #content let-modal>
+<ng-template #descContent let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modal-basic-title">Edit</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
@@ -7,7 +7,55 @@
     <div class="modal-body">
       <form>
         <div class="mb-3">
-            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="text">
+            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="descText">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
+    </div>
+  </ng-template>
+  <ng-template #updateContent let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="mb-3">
+            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="updatedText">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
+    </div>
+  </ng-template>
+  <ng-template #compContent let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="mb-3">
+            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="compText">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
+    </div>
+  </ng-template>
+  <ng-template #imageContent let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="mb-3">
+            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="descText">
         </div>
       </form>
     </div>
@@ -16,37 +64,38 @@
     </div>
   </ng-template>
 
-<div class="container">
+<div class="container" *ngIf="project">
     <div class="title" grid>
-        Welcome to {{title}} build
+        Welcome to {{project.title}} build
     </div>
-    <div class="content">
+    <div class="content" *ngIf="project">
         <h5 class="descTitle">Description</h5>
-        <div class="description" style="padding-left: 10px;" (click)="open(content)">
+        <div class="description" style="padding-left: 10px;" (click)="open(descContent)">
              {{project.description}}
         </div>
         <h5 class="updateTitle">Updates</h5>
-        <div class="updates">
+        <div class="updates" style="padding-left: 10px;" (click)="open(updateContent)">
           {{project.updates}}
         </div>
         <h5 class="compTitle">Completed</h5>
-        <div class="completed">
+        <div class="completed" style="padding-left: 10px;" (click)="open(compContent)">
           {{project.completed}}
         </div>
     </div>
-    <div class="galleryBar">
-        <span><input type="file" (change)="upload($event)" accept="*.png.jpg"></span>
-        <button (click)="uploadImage()">Upload</button>
-
-        <span><h4>Gallery</h4></span>
-    </div>
-    <!-- <app-gallery></app-gallery> -->
+        <div class="galleryBar">
+          <h4>Gallery</h4>
+      </div>
     <div class="gallery">
-        <div class="galleryContent a"></div>
-        <div class="galleryContent b"></div>    
-        <div class="galleryContent c"></div>    
-        <div class="galleryContent d"></div>    
-        <div class="galleryContent e"></div>    
-        <div class="galleryContent f"></div>    
+      <app-gallery-images [projectGallery]="project?.galleryImages ?? []"></app-gallery-images>
+      <div class="ngContainer">
+        <ng-container *ngIf="canClick">
+          <span>
+            <input class="btn" type="file" *ngIf="isAddFileVisible" (change)="upload($event)" accept="*.png.jpg">
+          </span>
+          <button class="btn" (click)="uploadImage()" *ngIf="isButtonVisible">Upload</button>
+          <div></div>
+          <mat-progress-bar mode="indeterminate" *ngIf="this.isUploading" [value]="progress"></mat-progress-bar>
+        </ng-container>
+      </div>
     </div>
 </div>

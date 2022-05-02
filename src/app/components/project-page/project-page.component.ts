@@ -1,16 +1,16 @@
 import { Component, OnInit, Input, NgModule, Injectable} from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { Firestore } from '@angular/fire/firestore';
+import { Firestore, serverTimestamp } from '@angular/fire/firestore';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { CarProject } from 'app/models/car-projects';
-import { AmgPageComponent } from 'app/pages/amg-page/amg-page.component';
-import { BmwPageComponent } from 'app/pages/bmw-page/bmw-page.component';
-import { LegacyPageComponent } from 'app/pages/legacy-page/legacy-page.component';
-import { Rx8PageComponent } from 'app/pages/rx8-page/rx8-page.component';
-import { firstValueFrom } from 'rxjs';
+import { AuthService } from 'app/services/auth.service';
+import { User } from 'app/services/user';
+import { throws } from 'assert';
+import { delay, firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-project-page',
@@ -20,45 +20,78 @@ import { firstValueFrom } from 'rxjs';
 export class ProjectPageComponent implements OnInit {
   closeResult = '';
   path:String;
-  text = new FormControl(null);
+  descText = new FormControl(null);
+  updatedText = new FormControl(null);
+  compText = new FormControl(null);
   projectID: string;
-  project: CarProject = {
-    completed: [],
-    description: "",
-    galleryImages: [],
-    ownerName: "test",
-    updates: []
-  };
+  currentUser: User | null;
+  canClick: boolean = false;
+  project: CarProject | null;
+  progress = 0;
+  isAddFileVisible = true;
+  isButtonVisible = false;
+  isUploading = false;
+  
+  timer: ReturnType<typeof setTimeout> = setTimeout(() => '', 5000);
 
   constructor(private storage: AngularFireStorage, 
     private modalService: NgbModal,
     private fireStore: AngularFirestore,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute,
+    private afs: AuthService) { }
 
   @Input() title: string | undefined;
 
   ngOnInit() {
-    this.route.queryParams.subscribe(async params => {
-      this.projectID = params['PID'];
-      const data = await firstValueFrom(this.fireStore.collection('projects').doc("7e5w4H0NFpQr9m4cG2oD").get());
-      this.project = data.data() as CarProject;
+
+    this.route.data.subscribe(async data => {
+      this.projectID = data['projectId'];
+      const documentSnapshot = await firstValueFrom(this.fireStore.collection('projects').doc(this.projectID).get());
+      this.project = documentSnapshot.data() as CarProject ?? {};
+
+      this.project.title = this.project?.title ?? "Project";
+      this.project.completed = this.project?.completed ?? [];
+      this.project.description = this.project?.description ?? "A car project";
+      this.project.galleryImages = this.project?.galleryImages ?? [];
+      this.project.ownerName = this.project?.ownerName ?? "Project Owner";
+      this.project.updates = this.project?.updates ?? [];
     });
+
+    this.afs.WatchCurrentUser().subscribe(user => {
+      this.currentUser = user;
+      this.canClick = (this.currentUser?.roles.author || this.currentUser?.roles.admin) ?? false;
+      console.log(this.currentUser?.roles);
+    })
   }
 
   upload($event) {
     this.path = $event.target.files[0];
+    this.isAddFileVisible = false;
+    this.isButtonVisible = true;
   }
 
   uploadImage(){
-    const result = this.storage.upload("/images/"+this.title+"/"+ "1", this.path);
+    this.isButtonVisible = false;
+    this.isUploading = true;
+    const result = this.storage.upload("/images/"+this.projectID+"/"+ this.project?.galleryImages.length, this.path);
     result.then(x => {
-      this.project.galleryImages.push({
-        imageUrl: x.ref.fullPath,
-        postId: ""
+      this.project?.galleryImages.push({
+        storagePath: x.ref.fullPath,
+        postId: "",
+        dateUploaded: new Date().toISOString(),
       });
       
-      this.fireStore.collection("projects").doc("7e5w4H0NFpQr9m4cG2oD").update(this.project);
+      if(this.project) {
+        this.fireStore.collection("projects").doc(this.projectID).update(this.project);
+      }
     })
+
+    setTimeout(() => {
+      this.isUploading = false;
+      this.isButtonVisible = false;
+      this.isAddFileVisible = true;
+      location.reload();
+    }, 5000);
   }
 
   open(content) {
@@ -81,7 +114,18 @@ export class ProjectPageComponent implements OnInit {
   }
 
   saveClick(){
-    this.project.description = this.text.value;
-    this.fireStore.collection("projects").doc("7e5w4H0NFpQr9m4cG2oD").update(this.project);
+    if(this.project) {
+      this.project.description = this.descText.value;
+      this.project.completed = this.compText.value;
+      this.project.updates = this.updatedText.value;
+      const docRef = this.fireStore.collection("projects").doc(this.projectID).set(this.project);
+    }
+
+  }
+
+  reset() {
+    this.isUploading = false;
+    this.isButtonVisible = false;
+    this.isAddFileVisible = true;
   }
 }

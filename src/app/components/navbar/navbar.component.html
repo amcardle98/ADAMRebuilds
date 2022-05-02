@@ -14,8 +14,6 @@
     </div>
     <div>
         <img src={{photoURL}} alt="">
-    </div>
-    <div>
         <app-navbar-button *ngIf="!authService.isLoggedIn" [text]="'Login'" routerLink="login"></app-navbar-button>
         <app-navbar-button *ngIf="authService.isLoggedIn" [text]="'Logout'" (click)="authService.SignOut()"></app-navbar-button>
     </div>

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LegacyPageComponent } from './legacy-page.component';
+import { PostComponent } from './post.component';
 
-describe('LegacyPageComponent', () => {
-  let component: LegacyPageComponent;
-  let fixture: ComponentFixture<LegacyPageComponent>;
+describe('PostComponent', () => {
+  let component: PostComponent;
+  let fixture: ComponentFixture<PostComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LegacyPageComponent ]
+      declarations: [ PostComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LegacyPageComponent);
+    fixture = TestBed.createComponent(PostComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

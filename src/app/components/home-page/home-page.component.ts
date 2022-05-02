@@ -29,8 +29,15 @@ export class HomePageComponent implements OnInit {
     description: "",
     galleryImages: [],
     ownerName: "test",
-    updates: []
+    updates: [],
+    title: "project"
   };
+
+  projectGalleryImageUrls: {
+    imageUrl: string,
+    route: string,
+  }[] = [];
+
   @Output() isLogout = new EventEmitter<void>()
 
   constructor(private storage: AngularFireStorage,
@@ -42,10 +49,26 @@ export class HomePageComponent implements OnInit {
       this.projectID = params['PID'];
       const data = await firstValueFrom(this.fireStore.collection('projects').doc("7e5w4H0NFpQr9m4cG2oD").get());
       this.project = data.data() as CarProject;
-      this.updatedPage();
+
+      this.getGalleryImages(this.project);
     });
 
     // console.log(this.project);
+  }
+
+  async getGalleryImages(project: CarProject) {
+
+    this.projectGalleryImageUrls = await Promise.all(
+      project.galleryImages.map(async (obj) => {
+        const imageURL = firstValueFrom(this.storage.ref(obj.storagePath).getDownloadURL() as Observable<string | unknown>);
+  
+        return {
+          imageUrl: (await imageURL) as string,
+          route: obj.postId,
+        };
+  
+      })
+    );
   }
 
   addPhoto() {

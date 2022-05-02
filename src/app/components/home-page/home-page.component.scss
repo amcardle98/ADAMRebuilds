@@ -10,9 +10,15 @@
 }
 
 .containerItem {
+  display: flex;
   width: 200px;
   height: 200px;
   margin: 15px 20px;
+
+  img {
+    height: 200px;
+    padding: 10px;
+  }
 }
 
 .updatedText {
@@ -22,11 +28,6 @@
 
 .containerTitle {
   margin: 0 10%;
-}
-
-img {
-  height: 100%;
-
 }
 
 .divider {

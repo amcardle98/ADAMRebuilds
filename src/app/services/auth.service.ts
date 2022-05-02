@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { User } from '../services/user';
+import { User, Roles } from '../services/user';
 import * as auth from 'firebase/auth';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import {
@@ -7,7 +7,7 @@ import {
   AngularFirestoreDocument,
 } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, Subscription } from 'rxjs';
 import { HomePageComponent } from '../components/home-page/home-page.component';
 @Injectable({
   providedIn: 'root',
@@ -15,6 +15,7 @@ import { HomePageComponent } from '../components/home-page/home-page.component';
 export class AuthService {
 
   userData: User | null; // Save logged in user data
+  private currentUserSubscription?: Subscription;
   private userData$ = new BehaviorSubject<User | null>(null);
 
   constructor(
@@ -26,9 +27,16 @@ export class AuthService {
     /* Saving user data in localstorage when 
     logged in and setting up null when logged out */
     this.afAuth.user.subscribe((user) => {
+      this.currentUserSubscription?.unsubscribe();
       if (user) {
-        const newUser = new User(user);
-        this.userData$.next(newUser);
+        this.currentUserSubscription = this.afs.collection('users').doc(user.uid).get()
+          .pipe(
+            map((userDoc) => {
+              return new User(user, (userDoc.data() as any).roles as Roles);
+            })
+          ).subscribe({
+            next: (u) => this.userData$.next(u),
+          });
       } else {
         this.userData$.next(null);
       }
