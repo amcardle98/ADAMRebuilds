@@ -1,0 +1,24 @@
+
+.discussion-root {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .header {
+        display: flex;
+        flex-direction: row;
+        margin: 0;
+
+        .title-header {
+            flex-grow: 1;
+
+        }
+
+        .new-post-header {
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+    }
+
+}
