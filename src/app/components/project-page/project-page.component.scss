@@ -116,3 +116,26 @@
         align-items: center;
     }
 }
+
+.project-card {
+    .card-title{
+        width: fit-content;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 4px;
+        background-color: lightgray;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: 0px;
+        box-shadow: 1px 5px 5px grey;
+    }
+
+    .card-body {
+        width: auto;
+        height: 100px;
+        background-color: lightgray;
+        border-radius: 0 10px 10px 10px;
+        margin-bottom: 20px;
+        box-shadow: 1px 5px 5px grey;
+        padding: 8px;
+    }
+}

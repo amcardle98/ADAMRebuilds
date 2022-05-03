@@ -1,27 +1,85 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { MatDialog } from '@angular/material/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Discussion } from 'app/models/discussion';
-import { firstValueFrom } from 'rxjs';
+import { AuthService } from 'app/services/auth.service';
+import { User } from 'app/services/user';
+import { combineLatest, map, switchMap } from 'rxjs';
+import { NewDiscussionComponent } from './new-discussion/new-discussion.component';
 
+interface DiscussionData {
+  discussion: Discussion;
+  posts: number;
+  views?: number;
+}
+
+@UntilDestroy()
 @Component({
   selector: 'app-forum',
   templateUrl: './forum.component.html',
-  styleUrls: ['./forum.component.scss']
+  styleUrls: ['./forum.component.scss'],
 })
 export class ForumComponent implements OnInit {
+  currentUser: User | null;
 
-  discussions: Discussion[] = [];
+  loadingFirst = true;
+  discussions: DiscussionData[] = [];
 
-  //TODO Use angular firestore to get all of the documents in the 'discussions' collection!
-  constructor(private afs: AngularFirestore) { }
+  constructor(
+    private afs: AngularFirestore,
+    private authService: AuthService,
+    private dialogService: MatDialog
+  ) {}
 
   async ngOnInit() {
-    const snapshot = await firstValueFrom(this.afs.collection('discussions').get());
+    this.afs
+      .collection('discussions')
+      .snapshotChanges()
+      .pipe(
+        untilDestroyed(this),
+        map((actions) => {
+          return actions
+            .map((a) => {
+              return a.payload.doc.data() as Discussion | undefined;
+            })
+            .filter((d): d is Discussion => d !== undefined);
+        }),
+        switchMap((discussions) => {
+          return combineLatest(
+            discussions.map((d) => {
+              return this.afs
+                .collection('discussions')
+                .doc(d.id)
+                .collection('posts')
+                .valueChanges()
+                .pipe(
+                  untilDestroyed(this),
+                  map((posts) => {
+                    return {
+                      discussion: d,
+                      posts: posts.length,
+                    };
+                  })
+                );
+            })
+          );
+        })
+      )
+      .subscribe((discussions) => {
+        this.discussions = discussions;
+        this.loadingFirst = false;
+      });
 
-    this.discussions = snapshot.docs.map((doc) => {
-      return doc.data() as Discussion;
-    });
+    this.authService
+      .WatchCurrentUser()
+      .pipe(untilDestroyed(this))
+      .subscribe((user) => {
+        this.currentUser = user;
+      });
   }
 
+  async beginNewForm() {
+    this.dialogService.open(NewDiscussionComponent);
+  }
 }

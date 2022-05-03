@@ -1,7 +1,11 @@
 import { Component, OnInit, Input, NgModule, Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import {
+  AngularFireStorage,
+  AngularFireUploadTask,
+} from '@angular/fire/compat/storage';
+import { UploadTaskSnapshot } from '@angular/fire/compat/storage/interfaces';
 import { Firestore, serverTimestamp } from '@angular/fire/firestore';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -49,27 +53,38 @@ export class ProjectPageComponent implements OnInit {
   @Input() title: string | undefined;
 
   ngOnInit() {
+    //Watch the route parameters in the address bar
     this.route.data
       .pipe(
+        //Stops a memory leak by unsubscribing when the component is destroyed.
         untilDestroyed(this),
+
+        //Map our route data to a project ID.
         map((data) => {
           return (data['projectId'] as string) ?? null;
         }),
+
+        //Map the project ID to a real-time update stream of the project document
         switchMap((projectId) => {
           this.projectID = projectId;
           return this.fireStore
             .collection('projects')
             .doc(projectId)
-            .snapshotChanges()
+            .snapshotChanges() //Snapshot changes means we will get a snapshot of the document every time it changes.
             .pipe(untilDestroyed(this));
         }),
+
+        //Map the snapshot to a car-project object
         map((documentSnapshot) => {
-          return documentSnapshot.payload.data() as CarProject | undefined;
+          return documentSnapshot.payload.data() as
+            | Partial<CarProject>
+            | undefined;
         })
       )
       .subscribe((project) => {
         this.project = project ?? {};
 
+        //Make a default project if there is no project data
         this.project.title = this.project?.title ?? 'Project';
         this.project.completed = this.project?.completed ?? [];
         this.project.description = this.project?.description ?? 'A car project';
@@ -77,6 +92,7 @@ export class ProjectPageComponent implements OnInit {
         this.project.ownerName = this.project?.ownerName ?? 'Project Owner';
         this.project.updates = this.project?.updates ?? [];
 
+        //Populate the form fields
         this.descText.setValue(this.project?.description ?? null);
         this.updatedText.setValue(this.project?.updates ?? null);
         this.compText.setValue(this.project?.completed ?? null);
@@ -94,15 +110,29 @@ export class ProjectPageComponent implements OnInit {
       });
   }
 
-  upload($event) {
-    this.path = $event.target.files[0];
-    this.isAddFileVisible = false;
-    this.isButtonVisible = true;
+  /**
+   * Sets up the upload
+   * @param $event
+   */
+  onChooseFile($event: Event) {
+    console.log($event);
+
+    if ($event.target instanceof HTMLInputElement && $event.target.files) {
+      const possibleFile = $event.target.files[0];
+
+      if (!possibleFile) {
+        return;
+      }
+
+      this.path = possibleFile.name;
+
+      this.isAddFileVisible = false;
+      this.isButtonVisible = true;
+    }
   }
 
   /**
    * Async function that uploads a file to firebase storage and adds it to the project's gallery records
-   *
    */
   async uploadImage() {
     if (!this.project) {
@@ -117,24 +147,35 @@ export class ProjectPageComponent implements OnInit {
     this.isButtonVisible = false;
     this.isUploading = true;
 
-    //Await the upload of the file to firebase storage.
-    const resultPath = await this.storage.upload(
-      '/images/' + this.projectID + '/' + this.project?.galleryImages?.length,
-      this.path
-    );
+    let resultPath: UploadTaskSnapshot | null = null;
+    try {
+      //Await the upload of the file to firebase storage.
+      resultPath = await this.storage.upload(
+        '/images/' + this.projectID + '/' + this.project?.galleryImages?.length,
+        this.path
+      );
+    } catch (error) {
+      console.log(error);
+    }
 
-    //Update our local copy of the project's gallery images with the new image.
-    this.project.galleryImages.push({
-      storagePath: resultPath.ref.fullPath,
-      postId: '',
-      dateUploaded: new Date().toISOString(),
-    });
+    if (resultPath) {
+      //Update our local copy of the project's gallery images with the new image.
+      this.project.galleryImages.push({
+        storagePath: resultPath.ref.fullPath,
+        postId: '',
+        dateUploaded: new Date().toISOString(),
+      });
 
-    //Update the project's gallery images in firebase.
-    await this.fireStore
-      .collection('projects')
-      .doc(this.projectID)
-      .update(this.project);
+      try {
+        //Update the project's gallery images in firebase.
+        await this.fireStore
+          .collection('projects')
+          .doc(this.projectID)
+          .update(this.project);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     //Reset the isUploading flag and show the chose file button
     this.isUploading = false;
@@ -143,6 +184,10 @@ export class ProjectPageComponent implements OnInit {
   }
 
   open(content) {
+    if (!this.currentUser?.roles.admin && !this.currentUser?.roles.author) {
+      return;
+    }
+
     this.modalService
       .open(content, { ariaLabelledBy: 'modal-basic-title' })
       .result.then(

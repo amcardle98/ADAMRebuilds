@@ -69,17 +69,23 @@
         Welcome to {{project.title}} build
     </div>
     <div class="content" *ngIf="project">
-        <h5 class="descTitle">Description</h5>
-        <div class="description" style="padding-left: 10px;" (click)="open(descContent)">
-             {{project.description}}
+        <div class="project-card">
+          <h5 class="card-title">Description</h5>
+          <div class="card-body" (click)="open(descContent)">
+              {{project.description}}
+          </div>
         </div>
-        <h5 class="updateTitle">Updates</h5>
-        <div class="updates" style="padding-left: 10px;" (click)="open(updateContent)">
-          {{project.updates}}
+        <div class="project-card">
+          <h5 class="card-title">Updates</h5>
+          <div class="card-body" (click)="open(updateContent)">
+              {{project.updates}}
+          </div>
         </div>
-        <h5 class="compTitle">Completed</h5>
-        <div class="completed" style="padding-left: 10px;" (click)="open(compContent)">
-          {{project.completed}}
+        <div class="project-card">
+          <h5 class="card-title">Completed</h5>
+          <div class="card-body" (click)="open(compContent)">
+              {{project.completed}}
+          </div>
         </div>
     </div>
         <div class="galleryBar">
@@ -90,7 +96,7 @@
       <div class="ngContainer">
         <ng-container *ngIf="canClick">
           <span>
-            <input class="btn" type="file" *ngIf="isAddFileVisible" (change)="upload($event)" accept="*.png.jpg">
+            <input class="btn" type="file" *ngIf="isAddFileVisible" (change)="onChooseFile($event)" accept="*.png.jpg">
           </span>
           <button class="btn" (click)="uploadImage()" *ngIf="isButtonVisible">Upload</button>
           <div></div>
