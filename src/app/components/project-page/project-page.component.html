@@ -63,6 +63,20 @@
       <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
     </div>
   </ng-template>
+  <ng-template #imageContent let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="mb-3">
+            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="descText">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+    </div>
+  </ng-template>
 
 <div class="container" *ngIf="project">
     <div class="title" grid>
@@ -92,7 +106,7 @@
           <h4>Gallery</h4>
       </div>
     <div class="gallery">
-      <app-gallery-images [projectGallery]="project?.galleryImages ?? []"></app-gallery-images>
+      <app-gallery-images [projectGallery]="project?.galleryImages ?? []" (click)="open(imageContent)"></app-gallery-images>
       <div class="ngContainer">
         <ng-container *ngIf="canClick">
           <span>

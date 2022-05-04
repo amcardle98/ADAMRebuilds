@@ -187,7 +187,7 @@ export class ProjectPageComponent implements OnInit {
     if (!this.currentUser?.roles.admin && !this.currentUser?.roles.author) {
       return;
     }
-
+    console.log(content);
     this.modalService
       .open(content, { ariaLabelledBy: 'modal-basic-title' })
       .result.then(
