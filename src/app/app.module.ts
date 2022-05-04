@@ -9,12 +9,14 @@ import { ProjectPageComponent } from './components/project-page/project-page.com
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { NavbarButtonComponent } from './widgets/navbar-button/navbar-button.component';
-import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
-import { provideAuth,getAuth } from '@angular/fire/auth';
-import { provideFirestore,getFirestore } from '@angular/fire/firestore';
-import { provideStorage,getStorage } from '@angular/fire/storage';
-import { AngularFirestore, AngularFirestoreModule } from '@angular/fire/compat/firestore';
+import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideStorage, getStorage } from '@angular/fire/storage';
+import {
+  AngularFirestore,
+  AngularFirestoreModule,
+} from '@angular/fire/compat/firestore';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { ForumComponent } from './components/forum/forum.component';
@@ -32,7 +34,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DiscussionComponent } from './components/forum/discussion/discussion.component';
 import { PostComponent } from './components/forum/post/post.component';
-
+import { NewDiscussionComponent } from './components/forum/new-discussion/new-discussion.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NewPostComponent } from './components/forum/new-post/new-post.component';
+import { GalleryItemDetailComponent } from './components/home-page/gallery-item-detail/gallery-item-detail.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +59,10 @@ import { PostComponent } from './components/forum/post/post.component';
     FileUploadComponent,
     GalleryImagesComponent,
     DiscussionComponent,
-    PostComponent
+    PostComponent,
+    NewDiscussionComponent,
+    NewPostComponent,
+    GalleryItemDetailComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,9 +78,14 @@ import { PostComponent } from './components/forum/post/post.component';
     ReactiveFormsModule,
     MatGridListModule,
     BrowserAnimationsModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatDialogModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
   ],
   providers: [AuthService, AngularFirestore],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

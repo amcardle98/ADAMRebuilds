@@ -14,6 +14,7 @@
   width: 200px;
   height: 200px;
   margin: 15px 20px;
+  position: relative;
 
   img {
     height: 200px;
@@ -35,4 +36,16 @@
   margin: 50px  auto;
   width: 65%;
   opacity: 50%;
+}
+
+.slider {
+  width: auto;
+  height: 300px;
+  display: flex;
+  overflow-x: auto;
+}
+.slide {
+  width: 300px;
+  flex-shrink: 0;
+  height: 100%;
 }

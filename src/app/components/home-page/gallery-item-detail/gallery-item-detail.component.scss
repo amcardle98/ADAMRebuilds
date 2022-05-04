@@ -1,0 +1,25 @@
+.image-container {
+    img {
+        height: 30vh;
+        width: auto;
+        margin: 0 -24px;
+    }
+}
+
+.caption-container {
+    margin-top: 10px;
+
+    .no-caption {
+        opacity: 0.6;
+    }
+}
+
+.action-container {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    
+    .action {
+        margin: 5px;
+    }
+}

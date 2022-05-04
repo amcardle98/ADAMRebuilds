@@ -1,13 +1,29 @@
 <p>discussion works!</p>
 
-<!--TODO: Add post button-->
+<!--TODO: Add new post button-->
 
-<div *ngIf="posts$ | async as posts">
-    <h1>Posts: {{posts.length}}</h1>
-    <span *ngFor="let post of posts">
-        <!--TODO: Make a component to represent structure of a "post"-->
-        <!--When a user clicks on a post, take them to that component post, load the ID-->
-        <!--using router params, like this component does. Using the ID, go get the document.-->
-        {{post.title}}
-    </span>
+<div class="discussion-root">
+    <div class="header">
+        <div class="title-header">
+            <h1>{{currentDiscussion?.title}}</h1>
+            <h5 *ngIf="currentDiscussion?.description">{{currentDiscussion?.description}}</h5>
+        </div>
+
+        <div class="new-post-header">
+            <button mat-stroked-button color="primary">New post</button>
+        </div>
+    </div>
+
+    <div class="body">
+        <div *ngIf="posts$ | async as posts">
+            <h1>Posts: {{posts.length}}</h1>
+            <span *ngFor="let post of posts">
+                <!--TODO: Make a component to represent structure of a "post"-->
+                <!--When a user clicks on a post, take them to that component post, load the ID-->
+                <!--using router params, like this component does. Using the ID, go get the document.-->
+                {{post.title}}
+            </span>
+        </div>
+    </div>
 </div>
+

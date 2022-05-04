@@ -1,20 +1,14 @@
-<div class="updatedText">
-    <h5>
-        {{updated}}
-    </h5>
-</div>
 <div class="containerTitle">
     <h1>
         Whats new!
     </h1>
 </div>
 <div class="container">
-    <div class="containerItem">
-        <div *ngFor="let item of projectGalleryImageUrls">
-            <img src={{item.imageUrl}} alt="">
+        <div class="slider">
+            <div *ngFor="let item of projectGalleryImageUrls">
+                <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
+            </div>
         </div>
-    </div>
-
 </div>
 <div class="divider">
 </div>
@@ -24,7 +18,9 @@
     </h1>
 </div>
 <div class="container">
-    <div class="containerItem">
-
+    <div class="slider">
+        <div *ngFor="let item of projectGalleryImageUrls">
+            <img class="slide" style="padding: 10px;" src={{item.imageUrl}} alt="">
+        </div>
     </div>
 </div>

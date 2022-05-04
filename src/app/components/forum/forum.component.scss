@@ -205,3 +205,16 @@ body{margin-top:20px;
     .m-b-sm {
         margin-bottom: 10px;
     }
+
+
+.main-title-container {
+  display: flex;
+  width: 100%;
+  max-width: 80vw;
+  align-items: center;
+
+  .new-discussion-button-contianer{
+    margin-left: 20px;
+  }
+
+}

@@ -7,21 +7,19 @@ import { BehaviorSubject } from 'rxjs';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit {
-
   currentUser: User | null;
 
   photoURL: string | null;
 
-  constructor(public authService: AuthService) { 
-  }
+  constructor(public authService: AuthService) {}
 
   ngOnInit(): void {
-    this.authService.WatchCurrentUser().subscribe(user => {
-      this.photoURL = user?.photoURL ?? null; 
+    this.authService.WatchCurrentUser().subscribe((user) => {
+      this.currentUser = user;
+      this.photoURL = user?.photoURL ?? null;
     });
   }
-
 }

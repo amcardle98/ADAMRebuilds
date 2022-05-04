@@ -1,0 +1,22 @@
+<h4 matDialogTitle>Picture</h4>
+
+<mat-dialog-content>
+    <div class="image-container">
+        <img [src]="currentGalleryItem?.imageUrl">
+    </div>
+
+    <div class="caption-container">
+        <ng-template #noCaption>
+            <em class="no-caption">No caption</em>
+        </ng-template>
+        <h1 *ngIf="currentGalleryItem?.caption else noCaption">{{currentGalleryItem?.caption}}</h1>
+        
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <div class="action-container">
+        <button class="action" mat-stroked-button matDialogClose>Close</button>
+        <button class="action" color="primary" mat-stroked-button matDialogClose [routerLink]="['/', currentGalleryItem?.fromProjectId]">Go To Project</button>
+    </div>
+</mat-dialog-actions>

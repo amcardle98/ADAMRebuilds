@@ -1,83 +1,148 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { AngularFireStorage} from '@angular/fire/compat/storage';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { firstValueFrom, Observable, of } from 'rxjs';
-import { finalize, startWith, tap } from 'rxjs/operators';
-import { makeStateKey, TransferState } from '@angular/platform-browser';
-import { trace } from '@angular/fire/compat/performance';
-import { getStorage, ref, listAll } from 'firebase/storage';
-import { CarProject } from 'app/models/car-projects';
+import { combineLatest } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs/operators';
+import { CarProject, GalleryData } from 'app/models/car-projects';
 import { ActivatedRoute } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { GalleryItemDetailComponent } from './gallery-item-detail/gallery-item-detail.component';
+import { MatDialog } from '@angular/material/dialog';
 
-interface Item {
-  name: string
-};
+export interface GalleryViewModel {
+  fromProjectId: string;
+  imageUrl: string;
+  caption?: string;
+  dateUploaded?: string;
+}
 
+@UntilDestroy()
 @Component({
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
-  styleUrls: ['./home-page.component.scss']
+  styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent implements OnInit {
-  downloadURL: Observable<string>;
-  public readonly downloadUrl$: Observable<string>;
-  photos: string[];
-  projectID: string;
-  updated: string;
-  project: CarProject = {
-    completed: [],
-    description: "",
-    galleryImages: [],
-    ownerName: "test",
-    updates: [],
-    title: "project"
-  };
+  projectGalleryImageUrls: GalleryViewModel[];
 
-  projectGalleryImageUrls: {
-    imageUrl: string,
-    route: string,
-  }[] = [];
+  @Output() isLogout = new EventEmitter<void>();
 
-  @Output() isLogout = new EventEmitter<void>()
-
-  constructor(private storage: AngularFireStorage,
-    private fireStore: AngularFirestore,
-    private route: ActivatedRoute) { }
+  constructor(
+    private readonly storage: AngularFireStorage,
+    private readonly fireStore: AngularFirestore,
+    private readonly route: ActivatedRoute,
+    private readonly dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(async params => {
-      this.projectID = params['PID'];
-      const data = await firstValueFrom(this.fireStore.collection('projects').doc("7e5w4H0NFpQr9m4cG2oD").get());
-      this.project = data.data() as CarProject;
+    //Watch the entire "projects" collection for changes
+    this.fireStore
+      .collection('projects')
+      .snapshotChanges() //This is an observable that we can pipe into a bunch of transformation functions below
+      .pipe(
+        //When this component gets destroyed, unsubscribe from the collection
+        untilDestroyed(this),
 
-      this.getGalleryImages(this.project);
-    });
+        //Get the data of each project in the collection
+        map((actions) => {
+          return actions.map((action) => {
+            return {
+              id: action.payload.doc.id,
+              ...(action.payload.doc.data() as Partial<CarProject>),
+            };
+            //return as Partial because data could be malformed
+          });
+        }),
+
+        //Map the projects to a list of projects who definitely have the galleryImages
+        map((projects) => {
+          return projects.filter(
+            (
+              project
+            ): project is Partial<CarProject> & {
+              id: string;
+              galleryImages: GalleryData[];
+            } => {
+              return !!project.galleryImages;
+            }
+          );
+        }),
+
+        //Map the projects to a list of `GalleryData` arrays, and merge them all
+        map((projects) => {
+          return (
+            projects
+              //This creates an array of arrays. Each inner array is a project's galleryImages
+              .map((project) => {
+                return project.galleryImages.map((galleryItem) => {
+                  return {
+                    fromProjectId: project.id,
+                    galleryItem: galleryItem,
+                  };
+                });
+              })
+              //Merge all the arrays together
+              .reduce((acc, curr) => {
+                return acc.concat(curr);
+              }, [])
+              //Only keep the galleryImages that have a date uploaded property.
+              .filter((mashedData) => {
+                return (
+                  !!mashedData.galleryItem.dateUploaded &&
+                  Date.parse(mashedData.galleryItem.dateUploaded) !== NaN
+                );
+              })
+
+              //Sort the gallery images by date uploaded
+              .sort((a, b) => {
+                return Date.parse(a.galleryItem.dateUploaded!) >
+                  Date.parse(b.galleryItem.dateUploaded!)
+                  ? -1
+                  : 1;
+              })
+          );
+        }),
+
+        //Map the list of all gallery images to the web-url of the image
+        switchMap((galleryImages) => {
+          //Combine the latest emission of all of the observables passed in
+          return combineLatest(
+            //Map all the gallery images to an observable that will emit the object we want
+            galleryImages.map((galleryImage) => {
+              return this.storage
+                .ref(galleryImage.galleryItem.storagePath)
+                .getDownloadURL()
+                .pipe(
+                  map((url) => {
+                    return {
+                      imageUrl: url as string,
+                      fromProjectId: galleryImage.fromProjectId,
+                      caption: galleryImage.galleryItem.caption,
+                      dateUploaded: galleryImage.galleryItem.dateUploaded,
+                    } as GalleryViewModel;
+                  }),
+                  finalize(() => {
+                    console.log('finalized inner storage observable');
+                  })
+                );
+            })
+          );
+        }),
+
+        finalize(() => {
+          console.log('finalized gallery observable');
+        })
+      )
+      .subscribe((galleryImageUrls) => {
+        this.projectGalleryImageUrls = galleryImageUrls;
+      });
 
     // console.log(this.project);
   }
 
-  async getGalleryImages(project: CarProject) {
-
-    this.projectGalleryImageUrls = await Promise.all(
-      project.galleryImages.map(async (obj) => {
-        const imageURL = firstValueFrom(this.storage.ref(obj.storagePath).getDownloadURL() as Observable<string | unknown>);
-  
-        return {
-          imageUrl: (await imageURL) as string,
-          route: obj.postId,
-        };
-  
-      })
-    );
+  openGalleryDetail(item: GalleryViewModel) {
+    this.dialog.open(GalleryItemDetailComponent, {
+      data: item,
+    });
   }
-
-  addPhoto() {
-
-  }
-
-  updatedPage(){
-    this.updated = new Date().toLocaleString();
-  }
-
-
 }
