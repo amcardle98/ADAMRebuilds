@@ -39,7 +39,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NewPostComponent } from './components/forum/new-post/new-post.component';
+import { GalleryItemDetailComponent } from './components/home-page/gallery-item-detail/gallery-item-detail.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,7 @@ import { NewPostComponent } from './components/forum/new-post/new-post.component
     PostComponent,
     NewDiscussionComponent,
     NewPostComponent,
+    GalleryItemDetailComponent,
   ],
   imports: [
     BrowserModule,
@@ -80,6 +83,7 @@ import { NewPostComponent } from './components/forum/new-post/new-post.component
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
   ],
   providers: [AuthService, AngularFirestore],
   bootstrap: [AppComponent],

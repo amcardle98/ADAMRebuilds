@@ -1,8 +1,3 @@
-<div class="updatedText">
-    <h5>
-        {{updated}}
-    </h5>
-</div>
 <div class="containerTitle">
     <h1>
         Whats new!
@@ -11,7 +6,7 @@
 <div class="container">
         <div class="slider">
             <div *ngFor="let item of projectGalleryImageUrls">
-                <img class="slide" style="padding: 10px;" src={{item.imageUrl}} alt="">
+                <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
             </div>
         </div>
 </div>

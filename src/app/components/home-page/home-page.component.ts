@@ -1,11 +1,20 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { finalize, map, switchMap } from 'rxjs/operators';
 import { CarProject, GalleryData } from 'app/models/car-projects';
 import { ActivatedRoute } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { GalleryItemDetailComponent } from './gallery-item-detail/gallery-item-detail.component';
+import { MatDialog } from '@angular/material/dialog';
+
+export interface GalleryViewModel {
+  fromProjectId: string;
+  imageUrl: string;
+  caption?: string;
+  dateUploaded?: string;
+}
 
 @UntilDestroy()
 @Component({
@@ -14,31 +23,15 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
   styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent implements OnInit {
-  downloadURL: Observable<string>;
-  public readonly downloadUrl$: Observable<string>;
-  photos: string[];
-  projectID: string;
-  updated: string;
-  project: CarProject = {
-    completed: [],
-    description: '',
-    galleryImages: [],
-    ownerName: 'test',
-    updates: [],
-    title: 'project',
-  };
-
-  projectGalleryImageUrls: {
-    imageUrl: string;
-    route: string;
-  }[] = [];
+  projectGalleryImageUrls: GalleryViewModel[];
 
   @Output() isLogout = new EventEmitter<void>();
 
   constructor(
-    private storage: AngularFireStorage,
-    private fireStore: AngularFirestore,
-    private route: ActivatedRoute
+    private readonly storage: AngularFireStorage,
+    private readonly fireStore: AngularFirestore,
+    private readonly route: ActivatedRoute,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -53,7 +46,10 @@ export class HomePageComponent implements OnInit {
         //Get the data of each project in the collection
         map((actions) => {
           return actions.map((action) => {
-            return action.payload.doc.data() as Partial<CarProject>;
+            return {
+              id: action.payload.doc.id,
+              ...(action.payload.doc.data() as Partial<CarProject>),
+            };
             //return as Partial because data could be malformed
           });
         }),
@@ -64,6 +60,7 @@ export class HomePageComponent implements OnInit {
             (
               project
             ): project is Partial<CarProject> & {
+              id: string;
               galleryImages: GalleryData[];
             } => {
               return !!project.galleryImages;
@@ -77,27 +74,29 @@ export class HomePageComponent implements OnInit {
             projects
               //This creates an array of arrays. Each inner array is a project's galleryImages
               .map((project) => {
-                return project.galleryImages;
+                return project.galleryImages.map((galleryItem) => {
+                  return {
+                    fromProjectId: project.id,
+                    galleryItem: galleryItem,
+                  };
+                });
               })
               //Merge all the arrays together
               .reduce((acc, curr) => {
                 return acc.concat(curr);
               }, [])
               //Only keep the galleryImages that have a date uploaded property.
-              .filter(
-                (
-                  gallery
-                ): gallery is GalleryData & { dateUploaded: string } => {
-                  return (
-                    !!gallery.dateUploaded &&
-                    Date.parse(gallery.dateUploaded) !== NaN
-                  );
-                }
-              )
+              .filter((mashedData) => {
+                return (
+                  !!mashedData.galleryItem.dateUploaded &&
+                  Date.parse(mashedData.galleryItem.dateUploaded) !== NaN
+                );
+              })
 
               //Sort the gallery images by date uploaded
               .sort((a, b) => {
-                return Date.parse(a.dateUploaded) > Date.parse(b.dateUploaded)
+                return Date.parse(a.galleryItem.dateUploaded!) >
+                  Date.parse(b.galleryItem.dateUploaded!)
                   ? -1
                   : 1;
               })
@@ -111,14 +110,16 @@ export class HomePageComponent implements OnInit {
             //Map all the gallery images to an observable that will emit the object we want
             galleryImages.map((galleryImage) => {
               return this.storage
-                .ref(galleryImage.storagePath)
+                .ref(galleryImage.galleryItem.storagePath)
                 .getDownloadURL()
                 .pipe(
                   map((url) => {
                     return {
                       imageUrl: url as string,
-                      route: galleryImage.postId,
-                    };
+                      fromProjectId: galleryImage.fromProjectId,
+                      caption: galleryImage.galleryItem.caption,
+                      dateUploaded: galleryImage.galleryItem.dateUploaded,
+                    } as GalleryViewModel;
                   }),
                   finalize(() => {
                     console.log('finalized inner storage observable');
@@ -139,7 +140,9 @@ export class HomePageComponent implements OnInit {
     // console.log(this.project);
   }
 
-  updatedPage() {
-    this.updated = new Date().toLocaleString();
+  openGalleryDetail(item: GalleryViewModel) {
+    this.dialog.open(GalleryItemDetailComponent, {
+      data: item,
+    });
   }
 }
