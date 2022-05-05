@@ -1,9 +1,10 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { GalleryComment } from 'app/models/car-projects';
 import { User } from 'app/services/user';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
+import { AuthService } from 'app/services/auth.service';
 
 @UntilDestroy()
 @Component({
@@ -14,14 +15,22 @@ import { Subscription } from 'rxjs';
 export class CommentComponent implements OnInit, OnChanges {
 
   @Input() galleryComment?: GalleryComment;
+  @Output() deleteComment: EventEmitter<void> = new EventEmitter();
 
   private currentPosterSubscription?: Subscription;
   posterName?: string;
   posterPhotoUrl?: string;
 
-  constructor(private readonly firestore: AngularFirestore) { }
+  currentUser: User | null;
+
+  constructor(private readonly firestore: AngularFirestore,
+    private afservice: AuthService) { }
 
   ngOnInit(): void {
+
+    this.afservice.WatchCurrentUser().subscribe(user => {
+      this.currentUser = user;
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -48,6 +57,10 @@ export class CommentComponent implements OnInit, OnChanges {
       this.posterPhotoUrl = (snapshot.payload.data() as any).photoURL;
     });
     
+  }
+
+  onDeleteComment(){
+    this.deleteComment.emit();
   }
 
 }

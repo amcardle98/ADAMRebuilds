@@ -5,6 +5,7 @@
     flex-direction: row;
     justify-content: left;
     align-items: left;
+    width: 350px;
 
     .profileImage {
         img {
@@ -16,8 +17,42 @@
     }
 
     .commentContent {
+        width: 100%;
         .posterName {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+
+
             font-weight: bold;
+
+            .delete {
+
+                visibility: hidden;
+
+                margin-right: 0;
+                margin-left: auto;
+                align-self: flex-end;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+
+            
+        }
+    }
+
+    &:hover {
+
+        .commentContent {
+            .posterName {
+                .delete {
+                    visibility: visible;
+                }
+            }
         }
     }
 }

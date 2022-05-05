@@ -5,7 +5,8 @@
 
     <div class="commentContent">
         <div class="posterName">
-            {{posterName}}
+            <span>{{posterName}}</span>
+            <span class="delete" *ngIf="galleryComment?.userUid == this.currentUser?.uid" (click)="onDeleteComment()"><mat-icon>delete</mat-icon></span>
         </div>
         <div class="comment">
             {{galleryComment?.content}}

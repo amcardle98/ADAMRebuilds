@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExtendedGalleryData } from '../gallery-images.component';
-import { FormControl } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import {
@@ -20,7 +20,7 @@ import {
   switchMap,
 } from 'rxjs';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
-import { arrayUnion } from '@angular/fire/firestore';
+import { arrayRemove, arrayUnion } from '@angular/fire/firestore';
 
 @UntilDestroy()
 @Component({
@@ -29,7 +29,7 @@ import { arrayUnion } from '@angular/fire/firestore';
   styleUrls: ['./gallery-image-details.component.scss'],
 })
 export class GalleryImageDetailsComponent implements OnInit {
-  commentControl = new FormControl(null);
+  commentControl = new FormControl(null, Validators.required);
   currentUser: User | null;
 
   galleryData?: ExtendedGalleryData;
@@ -67,11 +67,11 @@ export class GalleryImageDetailsComponent implements OnInit {
       .doc(projectId)
       .collection('gallery')
       .doc(galleryItemId)
-      .snapshotChanges()
+      .valueChanges()
       .pipe(
         untilDestroyed(this),
         map((snapshot) => {
-          return snapshot.payload.data() as GalleryData | undefined;
+          return snapshot as GalleryData | undefined;
         }),
         switchMap((galleryData) => {
           if (!galleryData) {
@@ -90,6 +90,23 @@ export class GalleryImageDetailsComponent implements OnInit {
                 } as ExtendedGalleryData;
               })
             );
+        }),
+        map((eGalleryData) => {
+
+          if (!eGalleryData) {
+            return eGalleryData;
+          }
+
+          eGalleryData.comments = eGalleryData?.comments?.sort((a, b) => {
+            //sort by date posted
+            const aDate = Date.parse(a.timePosted);
+            const bDate = Date.parse(b.timePosted);
+
+            return aDate - bDate;
+          }).reverse();
+
+          return eGalleryData;
+          
         })
       )
       .subscribe((extendedGalleryData) => {
@@ -145,5 +162,61 @@ export class GalleryImageDetailsComponent implements OnInit {
 
     this.commentControl.enable();
     this.commentControl.reset();
+  }
+
+  async deleteComment(index: number) {
+
+    //TODO: Lookup the comment on the given index!
+    //Then delete
+
+    if (!this.galleryData || !this.galleryData.comments) {
+      return;
+    }
+
+    //Get the comment at the given index
+    const comment = this.galleryData.comments[index];
+
+    if (!comment) {
+      return;
+    }
+
+    await this.firestore
+      .collection('projects')
+      .doc(this.galleryData.projectId)
+      .collection('gallery')
+      .doc(this.galleryData.id)
+      .update({
+        comments: arrayRemove(comment) as any,
+      });
+
+  }
+
+  async deleteImage() {
+
+    console.log('Deleting photo for ' + this.galleryData?.id + ' in project ' + this.galleryData?.projectId + '...');
+
+    if (!this.galleryData) {
+      return;
+    }
+
+    if (!this.currentUser) {
+      return;
+    }
+
+    //TODO: Verify current user is the one who posted this!
+
+    const storagePath = this.galleryData.storagePath;
+    
+    const result = await this.firestore
+      .collection('projects')
+      .doc(this.galleryData.projectId)
+      .collection('gallery')
+      .doc(this.galleryData.id)
+      .delete();
+
+    const storageResult = await this.storage.ref(storagePath).delete();
+
+    console.log('Deleted gallery item ' + this.galleryData?.id + ' in project ' + this.galleryData?.projectId + '.');
+    console.log('Deleted storage item ' + storagePath + '.');
   }
 }
