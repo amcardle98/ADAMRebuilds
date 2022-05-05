@@ -1,110 +1,110 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExtendedGalleryData } from '../gallery-images.component';
 import { FormControl } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { GalleryComment, GalleryData, CarProject } from 'app/models/car-projects';
+import {
+  GalleryComment,
+  GalleryData,
+  CarProject,
+} from 'app/models/car-projects';
 import { AuthService } from 'app/services/auth.service';
 import { User } from 'app/services/user';
-import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from 'rxjs';
+import {
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+} from 'rxjs';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
+import { arrayUnion } from '@angular/fire/firestore';
 
 @UntilDestroy()
 @Component({
   selector: 'app-gallery-image-details',
   templateUrl: './gallery-image-details.component.html',
-  styleUrls: ['./gallery-image-details.component.scss']
+  styleUrls: ['./gallery-image-details.component.scss'],
 })
 export class GalleryImageDetailsComponent implements OnInit {
-
   commentControl = new FormControl(null);
   currentUser: User | null;
 
-  galleryData?: ExtendedGalleryData
+  galleryData?: ExtendedGalleryData;
 
   constructor(
     private readonly dialogRef: MatDialogRef<GalleryImageDetailsComponent>,
-    @Inject(MAT_DIALOG_DATA) private readonly data: ExtendedGalleryData | undefined, 
+    @Inject(MAT_DIALOG_DATA)
+    private readonly data: ExtendedGalleryData | undefined,
     private readonly firestore: AngularFirestore,
     private readonly storage: AngularFireStorage,
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {
     this.galleryData = data;
 
-    if(data && data.dateUploaded) {
-      this.watchGalleryItem(data.projectId, data.dateUploaded)
+    if (this.galleryData) {
+      if (this.galleryData && !this.galleryData.dateUploaded) {
+        this.galleryData.dateUploaded = new Date().toISOString();
+      }
+
+      this.watchGalleryItem(this.galleryData.projectId, this.galleryData.id);
     }
   }
 
   ngOnInit(): void {
     this.authService.WatchCurrentUser().subscribe((currentUser) => {
       this.currentUser = currentUser;
-    })
+    });
 
     console.log(this.galleryData);
   }
 
-  watchGalleryItem(projectId: string, dateUploaded: string) {
-    this.firestore.collection('projects').doc(projectId).snapshotChanges().pipe(
-      untilDestroyed(this),
-      map((snapshot) => {
-        return {
-          id: projectId,
-          project: snapshot.payload.data() as CarProject | undefined,
-        }
-      }),
-      switchMap((projectData) => {
-        if(!projectData.project) {
-          return of(undefined)
-        }
-
-        const thisGalleryItemIndex = projectData.project.galleryImages.findIndex((gd) => {
-
-          if (!gd.dateUploaded) {
-            return false;
+  watchGalleryItem(projectId: string, galleryItemId: string) {
+    this.firestore
+      .collection('projects')
+      .doc(projectId)
+      .collection('gallery')
+      .doc(galleryItemId)
+      .snapshotChanges()
+      .pipe(
+        untilDestroyed(this),
+        map((snapshot) => {
+          return snapshot.payload.data() as GalleryData | undefined;
+        }),
+        switchMap((galleryData) => {
+          if (!galleryData) {
+            return of(undefined);
           }
 
-          if (!this.galleryData?.dateUploaded) {
-            return false;
-          }
-
-          return gd.dateUploaded === this.galleryData?.dateUploaded
+          return this.storage
+            .ref(galleryData.storagePath)
+            .getDownloadURL()
+            .pipe(
+              map((imageUrl) => {
+                return {
+                  ...galleryData,
+                  imageUrl: imageUrl,
+                  projectId: galleryData.projectId,
+                } as ExtendedGalleryData;
+              })
+            );
         })
+      )
+      .subscribe((extendedGalleryData) => {
+        console.log('Updated gallery data.');
+        console.log(extendedGalleryData);
+        this.galleryData = extendedGalleryData;
 
-        if (thisGalleryItemIndex < 0) {
-          return of(undefined);
+        if (!this.galleryData) {
+          this.dialogRef.close();
         }
-
-        const thisGalleryItem = projectData.project.galleryImages[thisGalleryItemIndex];
-
-        return this.storage
-          .ref(thisGalleryItem.storagePath)
-          .getDownloadURL().pipe(
-            map((imageUrl) => {
-              return {
-                ...thisGalleryItem,
-                imageUrl: imageUrl,
-                projectId: projectData.id,
-                arrayIndex: thisGalleryItemIndex,
-              } as ExtendedGalleryData;
-            })
-          );
-
-      })
-    ).subscribe((extendedGalleryData) => {
-      this.galleryData = extendedGalleryData;
-
-      if (!this.galleryData) {
-        this.dialogRef.close();
-      }
-
-    })
+      });
   }
 
   async addComment() {
-    
-    console.log("Adding comment...");
+    console.log('Adding comment...');
 
     this.commentControl.markAllAsTouched();
 
@@ -112,64 +112,38 @@ export class GalleryImageDetailsComponent implements OnInit {
       return;
     }
 
-    if(!this.galleryData) {
+    if (!this.galleryData) {
       return;
     }
 
-    if(!this.currentUser) {
+    if (!this.currentUser) {
       return;
     }
 
     this.commentControl.disable();
 
-    const newGalleryItem: GalleryData = {
-      storagePath: this.galleryData?.storagePath,
-      postId: this.galleryData?.postId,
-      caption: this.galleryData?.caption,
-      comments: this.galleryData?.comments ?? []
-    };
-
-    for (const key in newGalleryItem) {
-      if (Object.prototype.hasOwnProperty.call(newGalleryItem, key)) {
-        const element = newGalleryItem[key];
-        if (element === undefined) {
-          delete newGalleryItem[key];
-        }
-
-      }
-    }
-
     const newComment: GalleryComment = {
       content: this.commentControl.value,
       timePosted: new Date().toISOString(),
       userUid: this.currentUser.uid,
-    }
-
-    newGalleryItem.comments = (newGalleryItem.comments ?? []).concat(newComment);
-
-    const existingProjectSnap = await firstValueFrom(this.firestore.collection('projects').doc(this.galleryData.projectId).get())
-    const existingProject = existingProjectSnap.data() as CarProject | undefined;
-
-    if (!existingProject) {
-      this.commentControl.enable();
-      return;
-    }
-
-    existingProject.galleryImages[this.galleryData.arrayIndex] = newGalleryItem;
+    };
 
     const updateData = {
-      galleryImages: existingProject.galleryImages
-    } as Partial<CarProject>;
+      comments: arrayUnion(newComment) as any,
+    } as Partial<GalleryData>;
 
     console.log(updateData);
 
-    await existingProjectSnap.ref.update(updateData);
+    await this.firestore
+      .collection('projects')
+      .doc(this.galleryData.projectId)
+      .collection('gallery')
+      .doc(this.galleryData.id)
+      .ref.update(updateData);
 
-    console.log("Added comment.");
+    console.log('Added comment.');
 
     this.commentControl.enable();
     this.commentControl.reset();
-
   }
-
 }

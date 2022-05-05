@@ -23,11 +23,9 @@ export interface GalleryViewModel {
   styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent implements OnInit {
-
   thisWeekGalleryImages$: Observable<GalleryViewModel[]>;
   lastWeekGalleryImages$: Observable<GalleryViewModel[]>;
 
-  
   today = Date.parse(new Date().toISOString());
   oneWeekAgo = new Date().setDate(new Date().getDate()) - 7;
   twoWeekAgo = new Date().setDate(new Date().getDate()) - 14;
@@ -51,107 +49,76 @@ export class HomePageComponent implements OnInit {
         untilDestroyed(this),
 
         //Get the data of each project in the collection
-        map((actions) => {
-          return actions.map((action) => {
-            return {
-              id: action.payload.doc.id,
-              ...(action.payload.doc.data() as Partial<CarProject>),
-            };
-            //return as Partial because data could be malformed
+        switchMap((actions) => {
+          return combineLatest(
+            actions.map((action) => {
+              return this.fireStore
+                .collection('projects')
+                .doc(action.payload.doc.id)
+                .collection('gallery')
+                .snapshotChanges();
+            })
+          );
+        }),
+
+        map((galleryActions) => {
+          return galleryActions.reduce((acc, galleryActions) => {
+            return acc.concat(galleryActions);
+          }, []);
+        }),
+
+        map((galleryActions) => {
+          return galleryActions.map((galleryAction) => {
+            return galleryAction.payload.doc.data() as GalleryData;
           });
         }),
 
-        //Map the projects to a list of projects who definitely have the galleryImages
-        map((projects) => {
-          return projects.filter(
-            (
-              project
-            ): project is Partial<CarProject> & {
-              id: string;
-              galleryImages: GalleryData[];
-            } => {
-              return !!project.galleryImages;
-            }
-          );
-        }),
-
-        //Map the projects to a list of `GalleryData` arrays, and merge them all
-        map((projects) => {
-          return (
-            projects
-              //This creates an array of arrays. Each inner array is a project's galleryImages
-              .map((project) => {
-                return project.galleryImages.map((galleryItem) => {
-                  return {
-                    fromProjectId: project.id,
-                    galleryItem: galleryItem,
-                  };
-                });
-              })
-              //Merge all the arrays together
-              .reduce((acc, curr) => {
-                return acc.concat(curr);
-              }, [])
-              //Only keep the galleryImages that have a date uploaded property.
-              .filter((mashedData) => {
-                return (
-                  !!mashedData.galleryItem.dateUploaded &&
-                  Date.parse(mashedData.galleryItem.dateUploaded) !== NaN &&
-                  Date.parse(mashedData.galleryItem.dateUploaded) < Date.parse(new Date().toISOString())
-                );
-              })
-
-              //Sort the gallery images by date uploaded
-              .sort((a, b) => {
-                return Date.parse(a.galleryItem.dateUploaded!) >
-                  Date.parse(b.galleryItem.dateUploaded!)
-                  ? -1
-                  : 1;
-              })
-          );
-        }),
-
-        //Map the list of all gallery images to the web-url of the image
-        switchMap((galleryImages) => {
-          //Combine the latest emission of all of the observables passed in
+        switchMap((galleryItems) => {
+          //Map to image URLs
           return combineLatest(
-            //Map all the gallery images to an observable that will emit the object we want
-            galleryImages.map((galleryImage) => {
+            galleryItems.map((galleryItem) => {
               return this.storage
-                .ref(galleryImage.galleryItem.storagePath)
+                .ref(galleryItem.storagePath)
                 .getDownloadURL()
                 .pipe(
                   map((url) => {
                     return {
-                      imageUrl: url as string,
-                      fromProjectId: galleryImage.fromProjectId,
-                      caption: galleryImage.galleryItem.caption,
-                      dateUploaded: galleryImage.galleryItem.dateUploaded,
-                    } as GalleryViewModel;
-                  }),
-                  finalize(() => {
-                    console.log('finalized inner storage observable');
+                      galleryItem: galleryItem,
+                      imageUrl: url,
+                    };
                   })
                 );
             })
           );
         }),
 
+        map((expandedGalleryItems) => {
+          return expandedGalleryItems.map((expanded) => {
+            return {
+              fromProjectId: expanded.galleryItem.projectId,
+              imageUrl: expanded.imageUrl,
+              caption: expanded.galleryItem.caption,
+              dateUploaded: expanded.galleryItem.dateUploaded,
+            } as GalleryViewModel;
+          });
+        }),
+
         finalize(() => {
           console.log('finalized gallery observable');
-        }),
-      )
-      
-        
+        })
+      );
+
     this.thisWeekGalleryImages$ = allGalleryImages$.pipe(
       map((galleryImages) => {
         return galleryImages.filter((item) => {
-          
           if (!item.dateUploaded) {
             return false;
           }
 
-          return new Date(Date.parse(item.dateUploaded)).getDate() > (new Date().getDate() - this.oneWeekAgo);
+          return (
+            new Date(Date.parse(item.dateUploaded)).getDate() >
+            new Date().getDate() - this.oneWeekAgo
+          );
         });
       })
     );
@@ -159,15 +126,16 @@ export class HomePageComponent implements OnInit {
     this.lastWeekGalleryImages$ = allGalleryImages$.pipe(
       map((galleryImages) => {
         return galleryImages.filter((item) => {
-          
           if (!item.dateUploaded) {
             return false;
           }
 
-          return ( (new Date(Date.parse(item.dateUploaded)).getDate() >= (new Date().getDate()) - this.twoWeekAgo) 
-              && 
-                  (new Date(Date.parse(item.dateUploaded)).getDate() <= (new Date().getDate() - this.oneWeekAgo))
-                );
+          return (
+            new Date(Date.parse(item.dateUploaded)).getDate() >=
+              new Date().getDate() - this.twoWeekAgo &&
+            new Date(Date.parse(item.dateUploaded)).getDate() <=
+              new Date().getDate() - this.oneWeekAgo
+          );
         });
       })
     );

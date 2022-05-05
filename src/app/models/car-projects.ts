@@ -4,20 +4,20 @@ export interface CarProject {
   description: string;
   updates: any[];
   completed: any[];
-  galleryImages: GalleryData[];
 }
 
 export interface GalleryComment {
   userUid: string;
   timePosted: string;
-  content: string;  
+  content: string;
 }
 
 export interface GalleryData {
+  id: string;
+  projectId: string;
   storagePath: string;
-  postId: string;
   /**Firebase turns this into ISO string?? */
-  dateUploaded?: string;
+  dateUploaded: string;
   caption?: string;
-  comments?: GalleryComment[]
+  comments?: GalleryComment[];
 }

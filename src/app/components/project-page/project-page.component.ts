@@ -6,12 +6,12 @@ import {
   AngularFireUploadTask,
 } from '@angular/fire/compat/storage';
 import { UploadTaskSnapshot } from '@angular/fire/compat/storage/interfaces';
-import { Firestore, serverTimestamp } from '@angular/fire/firestore';
+import { Firestore, orderBy, serverTimestamp } from '@angular/fire/firestore';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { CarProject } from 'app/models/car-projects';
+import { CarProject, GalleryData } from 'app/models/car-projects';
 import { AuthService } from 'app/services/auth.service';
 import { User } from 'app/services/user';
 import { throws } from 'assert';
@@ -25,7 +25,7 @@ import { delay, firstValueFrom, map, switchMap } from 'rxjs';
 })
 export class ProjectPageComponent implements OnInit {
   closeResult = '';
-  path: String;
+  file?: File;
 
   descText = new FormControl(null);
   updatedText = new FormControl(null);
@@ -35,6 +35,7 @@ export class ProjectPageComponent implements OnInit {
   currentUser: User | null;
   canClick: boolean = false;
   project: Partial<CarProject> | null;
+  galleryImages: GalleryData[] = [];
   progress = 0;
   isAddFileVisible = true;
   isButtonVisible = false;
@@ -54,16 +55,18 @@ export class ProjectPageComponent implements OnInit {
 
   ngOnInit() {
     //Watch the route parameters in the address bar
-    this.route.data
+    const id$ = this.route.data.pipe(
+      //Stops a memory leak by unsubscribing when the component is destroyed.
+      untilDestroyed(this),
+
+      //Map our route data to a project ID.
+      map((data) => {
+        return (data['projectId'] as string) ?? null;
+      })
+    );
+
+    id$
       .pipe(
-        //Stops a memory leak by unsubscribing when the component is destroyed.
-        untilDestroyed(this),
-
-        //Map our route data to a project ID.
-        map((data) => {
-          return (data['projectId'] as string) ?? null;
-        }),
-
         //Map the project ID to a real-time update stream of the project document
         switchMap((projectId) => {
           this.projectID = projectId;
@@ -88,7 +91,6 @@ export class ProjectPageComponent implements OnInit {
         this.project.title = this.project?.title ?? 'Project';
         this.project.completed = this.project?.completed ?? [];
         this.project.description = this.project?.description ?? 'A car project';
-        this.project.galleryImages = this.project?.galleryImages ?? [];
         this.project.ownerName = this.project?.ownerName ?? 'Project Owner';
         this.project.updates = this.project?.updates ?? [];
 
@@ -96,6 +98,39 @@ export class ProjectPageComponent implements OnInit {
         this.descText.setValue(this.project?.description ?? null);
         this.updatedText.setValue(this.project?.updates ?? null);
         this.compText.setValue(this.project?.completed ?? null);
+      });
+
+    id$
+      .pipe(
+        switchMap((projectId) => {
+          //Get the gallery images for the project
+          return this.fireStore
+            .collection('projects')
+            .doc(projectId)
+            .collection('gallery')
+            .snapshotChanges()
+            .pipe(untilDestroyed(this));
+        }),
+        map((snapshots) => {
+          return snapshots
+            .map((snapshot) => {
+              return snapshot.payload.doc.data() as GalleryData;
+            })
+            .filter((data) => {
+              return !!data.dateUploaded;
+            });
+        }),
+        map((galleryItems) => {
+          return galleryItems.sort((a, b) => {
+            //Parse the dateUploaded string and sort by it
+            const aDate = Date.parse(a.dateUploaded);
+            const bDate = Date.parse(b.dateUploaded);
+            return aDate - bDate;
+          });
+        })
+      )
+      .subscribe((galleryItems) => {
+        this.galleryImages = galleryItems ?? [];
       });
 
     this.afs
@@ -121,10 +156,12 @@ export class ProjectPageComponent implements OnInit {
       const possibleFile = $event.target.files[0];
 
       if (!possibleFile) {
+        this.isButtonVisible = false;
+        this.isAddFileVisible = true;
         return;
       }
 
-      this.path = possibleFile.name;
+      this.file = possibleFile;
 
       this.isAddFileVisible = false;
       this.isButtonVisible = true;
@@ -140,38 +177,46 @@ export class ProjectPageComponent implements OnInit {
       return;
     }
 
-    //If gallery images property doesn't exist, set it to an empty array.
-    this.project.galleryImages = this.project.galleryImages ?? [];
+    if (!this.file) {
+      this.isButtonVisible = false;
+      this.isAddFileVisible = true;
+      return;
+    }
 
     //Before uploading, set the isUploading flag to true and hide the "upload" button.
     this.isButtonVisible = false;
     this.isUploading = true;
 
+    const galleryDataRef = this.fireStore
+      .collection('projects')
+      .doc(this.projectID)
+      .collection('gallery')
+      .doc().ref;
+
     let resultPath: UploadTaskSnapshot | null = null;
     try {
       //Await the upload of the file to firebase storage.
       resultPath = await this.storage.upload(
-        '/images/' + this.projectID + '/' + this.project?.galleryImages?.length,
-        this.path
+        '/images/' + this.projectID + '/' + galleryDataRef.id,
+        this.file
       );
     } catch (error) {
       console.log(error);
     }
 
     if (resultPath) {
-      //Update our local copy of the project's gallery images with the new image.
-      this.project.galleryImages.push({
+      //If the upload was successful, create a new record in the project's gallery collection
+
+      const galleryData: GalleryData = {
+        id: galleryDataRef.id,
+        projectId: this.projectID,
         storagePath: resultPath.ref.fullPath,
-        postId: '',
         dateUploaded: new Date().toISOString(),
-      });
+      };
 
       try {
         //Update the project's gallery images in firebase.
-        await this.fireStore
-          .collection('projects')
-          .doc(this.projectID)
-          .update(this.project);
+        await galleryDataRef.set(galleryData);
       } catch (error) {
         console.log(error);
       }
@@ -181,6 +226,7 @@ export class ProjectPageComponent implements OnInit {
     this.isUploading = false;
     this.isButtonVisible = false;
     this.isAddFileVisible = true;
+    delete this.file;
   }
 
   open(content) {
