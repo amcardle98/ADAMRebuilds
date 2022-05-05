@@ -11,7 +11,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { NavbarButtonComponent } from './widgets/navbar-button/navbar-button.component';
 import { environment } from '../environments/environment';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideFirestore, getFirestore, initializeFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import {
   AngularFirestore,
@@ -39,9 +39,14 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NewPostComponent } from './components/forum/new-post/new-post.component';
 import { GalleryItemDetailComponent } from './components/home-page/gallery-item-detail/gallery-item-detail.component';
+import { GalleryImageDetailsComponent } from './components/gallery-images/gallery-image-details/gallery-image-details.component';
+import { CommentComponent } from './components/gallery-images/gallery-image-details/comment/comment.component';
+import { getApp } from '@angular/fire/app';
 
 @NgModule({
   declarations: [
@@ -63,6 +68,8 @@ import { GalleryItemDetailComponent } from './components/home-page/gallery-item-
     NewDiscussionComponent,
     NewPostComponent,
     GalleryItemDetailComponent,
+    GalleryImageDetailsComponent,
+    CommentComponent,
   ],
   imports: [
     BrowserModule,
@@ -70,7 +77,7 @@ import { GalleryItemDetailComponent } from './components/home-page/gallery-item-
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() => initializeFirestore(getApp(), { ignoreUndefinedProperties: true })),
     provideStorage(() => getStorage()),
     AngularFirestoreModule,
     AngularFireStorageModule,
@@ -84,6 +91,8 @@ import { GalleryItemDetailComponent } from './components/home-page/gallery-item-
     MatFormFieldModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatIconModule,
+    MatDividerModule,
   ],
   providers: [AuthService, AngularFirestore],
   bootstrap: [AppComponent],
