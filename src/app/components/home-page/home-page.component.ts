@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { combineLatest } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { finalize, map, switchMap } from 'rxjs/operators';
 import { CarProject, GalleryData } from 'app/models/car-projects';
 import { ActivatedRoute } from '@angular/router';
@@ -23,7 +23,14 @@ export interface GalleryViewModel {
   styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent implements OnInit {
-  projectGalleryImageUrls: GalleryViewModel[];
+
+  thisWeekGalleryImages$: Observable<GalleryViewModel[]>;
+  lastWeekGalleryImages$: Observable<GalleryViewModel[]>;
+
+  
+  today = Date.parse(new Date().toISOString());
+  oneWeekAgo = new Date().setDate(new Date().getDate()) - 7;
+  twoWeekAgo = new Date().setDate(new Date().getDate()) - 14;
 
   @Output() isLogout = new EventEmitter<void>();
 
@@ -36,7 +43,7 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit(): void {
     //Watch the entire "projects" collection for changes
-    this.fireStore
+    const allGalleryImages$ = this.fireStore
       .collection('projects')
       .snapshotChanges() //This is an observable that we can pipe into a bunch of transformation functions below
       .pipe(
@@ -89,7 +96,8 @@ export class HomePageComponent implements OnInit {
               .filter((mashedData) => {
                 return (
                   !!mashedData.galleryItem.dateUploaded &&
-                  Date.parse(mashedData.galleryItem.dateUploaded) !== NaN
+                  Date.parse(mashedData.galleryItem.dateUploaded) !== NaN &&
+                  Date.parse(mashedData.galleryItem.dateUploaded) < Date.parse(new Date().toISOString())
                 );
               })
 
@@ -131,11 +139,38 @@ export class HomePageComponent implements OnInit {
 
         finalize(() => {
           console.log('finalized gallery observable');
-        })
+        }),
       )
-      .subscribe((galleryImageUrls) => {
-        this.projectGalleryImageUrls = galleryImageUrls;
-      });
+      
+        
+    this.thisWeekGalleryImages$ = allGalleryImages$.pipe(
+      map((galleryImages) => {
+        return galleryImages.filter((item) => {
+          
+          if (!item.dateUploaded) {
+            return false;
+          }
+
+          return new Date(Date.parse(item.dateUploaded)).getDate() > (new Date().getDate() - this.oneWeekAgo);
+        });
+      })
+    );
+
+    this.lastWeekGalleryImages$ = allGalleryImages$.pipe(
+      map((galleryImages) => {
+        return galleryImages.filter((item) => {
+          
+          if (!item.dateUploaded) {
+            return false;
+          }
+
+          return ( (new Date(Date.parse(item.dateUploaded)).getDate() >= (new Date().getDate()) - this.twoWeekAgo) 
+              && 
+                  (new Date(Date.parse(item.dateUploaded)).getDate() <= (new Date().getDate() - this.oneWeekAgo))
+                );
+        });
+      })
+    );
 
     // console.log(this.project);
   }

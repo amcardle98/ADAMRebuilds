@@ -13,8 +13,8 @@
         </h1>
     </div>
     <div>
-        <img src={{photoURL}} alt="">
+        <img *ngIf="currentUser" src={{photoURL}} alt="" (click)="authService.SignOut()">
         <app-navbar-button *ngIf="!currentUser" [text]="'Login'" routerLink="login"></app-navbar-button>
-        <app-navbar-button *ngIf="currentUser" [text]="'Logout'" (click)="authService.SignOut()"></app-navbar-button>
+        <!-- <app-navbar-button *ngIf="currentUser" [text]="'Logout'" (click)="authService.SignOut()"></app-navbar-button> -->
     </div>
 </div>

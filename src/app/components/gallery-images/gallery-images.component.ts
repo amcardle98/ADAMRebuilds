@@ -5,9 +5,14 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { MatDialog } from '@angular/material/dialog';
 import { CarProject, GalleryData } from 'app/models/car-projects';
-import { firstValueFrom, Observable } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Observable, of, switchMap, Subscription } from 'rxjs';
+import { GalleryImageDetailsComponent } from './gallery-image-details/gallery-image-details.component';
+
+export type ExtendedGalleryData = GalleryData & { imageUrl: string, projectId: string, arrayIndex: number };
 
 @Component({
   selector: 'app-gallery-images',
@@ -15,31 +20,69 @@ import { firstValueFrom, Observable } from 'rxjs';
   styleUrls: ['./gallery-images.component.scss'],
 })
 export class GalleryImagesComponent implements OnInit, OnChanges {
-  @Input() projectGallery: GalleryData[];
+  @Input() projectId: string;
 
-  foundImageUrls: string[] = [];
+  extendedGalleryData: Array<ExtendedGalleryData> = [];
+  galleryDataSubscription?: Subscription
 
-  constructor(private storage: AngularFireStorage) {}
+  constructor(
+    private storage: AngularFireStorage,
+    private firestore: AngularFirestore,
+    private readonly dialog: MatDialog,
+  ) { }
 
   ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['projectGallery']) {
-      this.getGalleryImages(this.projectGallery);
+    if (changes['projectId']) {
+      this.getGalleryImages(this.projectId);
     }
   }
 
-  async getGalleryImages(gallery: CarProject['galleryImages']) {
-    this.foundImageUrls = await Promise.all(
-      gallery.map(async (obj) => {
-        const imageURL = firstValueFrom(
-          this.storage
-            .ref(obj.storagePath)
-            .getDownloadURL() as Observable<string>
+  openGalleryImage(image: ExtendedGalleryData) {
+    this.dialog.open(GalleryImageDetailsComponent, {
+      data: image,
+    });
+  }
+
+  async getGalleryImages(projectId: string) {
+
+    this.galleryDataSubscription?.unsubscribe();
+
+    console.log("Getting gallery images for project ID " + projectId);
+
+    this.galleryDataSubscription = this.firestore.collection('projects').doc(projectId).snapshotChanges().pipe(
+      map((snapshot) => {
+        return {
+          id: projectId,
+          project: snapshot.payload.data() as CarProject | undefined,
+        }
+      }),
+      switchMap((projectData) => {
+        if(!projectData.project) {
+          return of(undefined)
+        }
+
+        return combineLatest(
+          projectData.project.galleryImages.map((obj, index) => {
+            return this.storage
+              .ref(obj.storagePath)
+              .getDownloadURL().pipe(
+                map((imageUrl) => {
+                  return {
+                    ...obj,
+                    imageUrl: imageUrl,
+                    projectId: projectData.id,
+                    arrayIndex: index,
+                  } as ExtendedGalleryData;
+                })
+              );
+          })
         );
 
-        return imageURL;
       })
-    );
+    ).subscribe((extendedGalleryData) => {
+      this.extendedGalleryData = extendedGalleryData ?? [];
+    })
   }
 }

@@ -1,0 +1,23 @@
+.container {
+    background-color: rgb(236, 233, 233);
+    margin: 5px 0 5px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: left;
+
+    .profileImage {
+        img {
+            margin: 5px 5px 5px 0;
+            width: 50px;
+            border: 1px solid black;
+            border-radius: 100%;
+        }
+    }
+
+    .commentContent {
+        .posterName {
+            font-weight: bold;
+        }
+    }
+}

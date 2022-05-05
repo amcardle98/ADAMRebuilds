@@ -1,0 +1,15 @@
+<div class="container">
+    <div class="profileImage">
+        <img *ngIf="posterPhotoUrl" [src]="posterPhotoUrl" alt="">
+    </div>
+
+    <div class="commentContent">
+        <div class="posterName">
+            {{posterName}}
+        </div>
+        <div class="comment">
+            {{galleryComment?.content}}
+        </div> 
+    </div>
+
+</div>

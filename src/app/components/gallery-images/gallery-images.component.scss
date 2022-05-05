@@ -12,5 +12,19 @@
     img {
         width: 200px;
         padding: 10px;
+
+        
+        transition-duration: 0.3s;
+        &:hover {
+            transform: scale(1.1);
+        }
+
+        .delete {
+            visibility: hidden;
+        }
+
+        .delete:hover{
+            visibility: true;
+        }
     }
 }
