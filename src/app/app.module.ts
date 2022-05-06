@@ -47,6 +47,8 @@ import { GalleryItemDetailComponent } from './components/home-page/gallery-item-
 import { GalleryImageDetailsComponent } from './components/gallery-images/gallery-image-details/gallery-image-details.component';
 import { CommentComponent } from './components/gallery-images/gallery-image-details/comment/comment.component';
 import { getApp } from '@angular/fire/app';
+import { NewResponseComponent } from './components/forum/new-response/new-response.component';
+import {MatCardModule} from '@angular/material/card';
 
 @NgModule({
   declarations: [
@@ -70,6 +72,7 @@ import { getApp } from '@angular/fire/app';
     GalleryItemDetailComponent,
     GalleryImageDetailsComponent,
     CommentComponent,
+    NewResponseComponent,
   ],
   imports: [
     BrowserModule,
@@ -93,6 +96,7 @@ import { getApp } from '@angular/fire/app';
     MatProgressSpinnerModule,
     MatIconModule,
     MatDividerModule,
+    MatCardModule
   ],
   providers: [AuthService, AngularFirestore],
   bootstrap: [AppComponent],

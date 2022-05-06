@@ -1,0 +1,14 @@
+
+.mainFlex {
+    max-height: 100vh;
+    height: 100vh;
+    display:flex;
+    flex-direction: column;
+
+    justify-content: stretch;
+
+    router-outlet + * {
+        flex-grow: 1;
+        flex-basis: 1fr;
+    }
+}

@@ -203,7 +203,9 @@ export class GalleryImageDetailsComponent implements OnInit {
       return;
     }
 
-    //TODO: Verify current user is the one who posted this!
+    if (!this.currentUser.roles.admin && !this.currentUser.roles.author) {
+      return;
+    }
 
     const storagePath = this.galleryData.storagePath;
     

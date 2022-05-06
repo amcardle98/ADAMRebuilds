@@ -1,1 +1,28 @@
-<p>post works!</p>
+<div class="container">
+    <h1>{{currentPost?.title}}</h1>
+    <div class="header">
+        {{currentPost?.body}}
+        <mat-label class="postedBy">Posted by {{postedBy}}</mat-label> 
+    </div>
+
+    <!-- ngFor="let response of responses"   Display all responses -->
+    <div class="responsesContainer">
+        <div class="responses" *ngFor="let response of responses">
+            <mat-card class="response">
+                <mat-card-subtitle>{{response.postedBy?.displayName}} 
+                   <span style="float: right; margin-left: 50px;">{{response.postedDate | date}}</span> 
+                </mat-card-subtitle>
+                <mat-card-content>{{response.body}}</mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="newResponseContainer">
+        <form>
+            <mat-form-field appearance="outline">
+                <textarea matInput type="text" [formControl]="responseControl"></textarea>
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="postResponse()">Post</button>
+        </form>
+    </div>
+</div>

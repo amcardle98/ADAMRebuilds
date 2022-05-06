@@ -9,6 +9,7 @@ import { ProjectPageComponent } from './components/project-page/project-page.com
 import { Auth } from '@angular/fire/auth';
 import { DiscussionComponent } from './components/forum/discussion/discussion.component';
 import { PostComponent } from './components/forum/post/post.component';
+import { NewResponseComponent } from './components/forum/new-response/new-response.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -51,7 +52,7 @@ const routes: Routes = [
   {
     path: 'forum/:formCat/:postId',
     component: PostComponent,
-  },
+  }
 ];
 
 @NgModule({

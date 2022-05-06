@@ -26,9 +26,12 @@ export class HomePageComponent implements OnInit {
   thisWeekGalleryImages$: Observable<GalleryViewModel[]>;
   lastWeekGalleryImages$: Observable<GalleryViewModel[]>;
 
-  today = Date.parse(new Date().toISOString());
-  oneWeekAgo = new Date().setDate(new Date().getDate()) - 7;
-  twoWeekAgo = new Date().setDate(new Date().getDate()) - 14;
+  today = new Date();
+  oneWeekAgo = new Date();
+  twoWeekAgo = new Date();
+  
+  // setDate(new Date().getDate() - 7);
+  // setDate(new Date().getDate() - 14);
 
   @Output() isLogout = new EventEmitter<void>();
 
@@ -40,6 +43,9 @@ export class HomePageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+
+    this.oneWeekAgo.setDate(this.oneWeekAgo.getDate() - 7);
+    this.twoWeekAgo.setDate(this.oneWeekAgo.getDate() - 14);
     //Watch the entire "projects" collection for changes
     const allGalleryImages$ = this.fireStore
       .collection('projects')
@@ -116,8 +122,7 @@ export class HomePageComponent implements OnInit {
           }
 
           return (
-            new Date(Date.parse(item.dateUploaded)).getDate() >
-            new Date().getDate() - this.oneWeekAgo
+            this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) < 7 
           );
         });
       })
@@ -130,11 +135,12 @@ export class HomePageComponent implements OnInit {
             return false;
           }
 
+          console.log(this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) >= 7 );
           return (
-            new Date(Date.parse(item.dateUploaded)).getDate() >=
-              new Date().getDate() - this.twoWeekAgo &&
-            new Date(Date.parse(item.dateUploaded)).getDate() <=
-              new Date().getDate() - this.oneWeekAgo
+            // new Date(Date.parse(item.dateUploaded)).getDate() >=
+            //   new Date().getDate() - this.twoWeekAgo &&
+            this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) >= 7 &&
+            this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) < 14
           );
         });
       })
@@ -147,5 +153,15 @@ export class HomePageComponent implements OnInit {
     this.dialog.open(GalleryItemDetailComponent, {
       data: item,
     });
+  }
+
+  dateDifference(date2: Date, date1: Date) {
+    const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    // Discard the time and time-zone information.
+    const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+    const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+    return Math.floor((utc2 - utc1) / _MS_PER_DAY); 
   }
 }

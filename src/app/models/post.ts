@@ -1,4 +1,5 @@
 export interface Post {
+  postId: string;
   /**The Uid of the user who posted this */
   postedByUid: string;
   /**When this was posted */

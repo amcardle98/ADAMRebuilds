@@ -43,9 +43,21 @@
   height: 300px;
   display: flex;
   overflow-x: auto;
+
 }
 .slide {
-  width: 300px;
+  width: auto;
   flex-shrink: 0;
   height: 100%;
+
+  transition-duration: 0.3s;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(0.9);
+  }
+
+  &:active {
+    transform: scale(0.7);
+  }
 }
