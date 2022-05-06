@@ -1,8 +1,40 @@
 .container {
-    display: grid;
-    grid-template-columns: 50%;
-    grid-template-rows: 25% 50%;
-    margin-left: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
+
+    .content {
+        border-radius: 10px;
+        grid-row-start: 2;
+        margin-top: 100px;
+
+        display:flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+
+        .header {
+            text-align: center;
+        }
+    
+        .detail-card {
+            margin: 20px;
+            min-height: 200px;
+
+            @media screen and (max-width: 768px) {
+                margin: 10px;
+                min-height: unset;
+            }
+
+            p {
+                padding-top: 10px;
+            }
+        }
+        
+    }
+    
 }
 
 .title {
@@ -44,11 +76,6 @@
 }
 
 
-.content {
-    border-radius: 10px;
-    grid-row-start: 2;
-    margin-top: 100px;
-}
 
 .description {
     width: auto;

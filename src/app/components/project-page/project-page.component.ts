@@ -1,12 +1,7 @@
-import { Component, OnInit, Input, NgModule, Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Component, OnInit, Input } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import {
-  AngularFireStorage,
-  AngularFireUploadTask,
-} from '@angular/fire/compat/storage';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { UploadTaskSnapshot } from '@angular/fire/compat/storage/interfaces';
-import { Firestore, orderBy, serverTimestamp } from '@angular/fire/firestore';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
@@ -14,8 +9,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { CarProject, GalleryData } from 'app/models/car-projects';
 import { AuthService } from 'app/services/auth.service';
 import { User } from 'app/services/user';
-import { throws } from 'assert';
-import { delay, firstValueFrom, map, switchMap } from 'rxjs';
+import { map, switchMap } from 'rxjs';
 
 @UntilDestroy()
 @Component({
@@ -122,10 +116,10 @@ export class ProjectPageComponent implements OnInit {
         }),
         map((galleryItems) => {
           return galleryItems.sort((a, b) => {
-            //Parse the dateUploaded string and sort by it
-            const aDate = Date.parse(a.dateUploaded);
-            const bDate = Date.parse(b.dateUploaded);
-            return aDate - bDate;
+            //Parse and sort the date by newest first
+            const aDate = new Date(a.dateUploaded);
+            const bDate = new Date(b.dateUploaded);
+            return bDate.getTime() - aDate.getTime();
           });
         })
       )

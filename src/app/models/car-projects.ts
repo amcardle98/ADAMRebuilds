@@ -4,6 +4,7 @@ export interface CarProject {
   description: string;
   updates: any[];
   completed: any[];
+  ownerUid?: string;
 }
 
 export interface GalleryComment {
