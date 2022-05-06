@@ -1,26 +1,29 @@
-<div class="containerTitle">
-    <h1>
-        Whats new!
-    </h1>
-</div>
-<div class="container">
-        <div class="slider">
-            <div *ngFor="let item of thisWeekGalleryImages$ | async">
-                <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
+<div class="root">
+    <div class="content-container">
+        <div class="containerTitle">
+            <h1>
+                Whats new!
+            </h1>
+        </div>
+        <mat-card class="container">
+                <div class="slider">
+                    <div *ngFor="let item of thisWeekGalleryImages$ | async">
+                        <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
+                    </div>
+                </div>
+        </mat-card>
+        <mat-divider class="divider"></mat-divider>
+        <div class="containerTitle">
+            <h1>
+                Last week
+            </h1>
+        </div>
+        <mat-card class="container">
+            <div class="slider">
+                <div *ngFor="let item of lastWeekGalleryImages$ | async">
+                    <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
+                </div>
             </div>
-        </div>
-</div>
-<div class="divider">
-</div>
-<div class="containerTitle">
-    <h1>
-        Last week
-    </h1>
-</div>
-<div class="container">
-    <div class="slider">
-        <div *ngFor="let item of lastWeekGalleryImages$ | async">
-            <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
-        </div>
+        </mat-card>
     </div>
 </div>
