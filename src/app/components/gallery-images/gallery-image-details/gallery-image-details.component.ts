@@ -4,21 +4,10 @@ import { ExtendedGalleryData } from '../gallery-images.component';
 import { FormControl, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
-import {
-  GalleryComment,
-  GalleryData,
-  CarProject,
-} from 'app/models/car-projects';
+import { GalleryComment, GalleryData } from 'app/models/car-projects';
 import { AuthService } from 'app/services/auth.service';
 import { User } from 'app/services/user';
-import {
-  combineLatest,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  switchMap,
-} from 'rxjs';
+import { map, of, switchMap } from 'rxjs';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { arrayRemove, arrayUnion } from '@angular/fire/firestore';
 

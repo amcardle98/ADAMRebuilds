@@ -1,6 +1,29 @@
 <!-- <app-navbar></app-navbar>
 <app-home-page></app-home-page> -->
 <div class="mainFlex">
-    <app-navbar></app-navbar>
-    <router-outlet></router-outlet>
+    <app-navbar (menuClick)="!sidenav.opened ? sidenav.open() : sidenav.close()"></app-navbar>
+    <mat-sidenav-container #sidenavContainer>
+
+        <mat-sidenav #sidenav class="shell-sidenav">
+            <mat-nav-list class="sidenav-nav-list">
+                <mat-list-item class="nav-item" [routerLink]="['/home']">
+                    <mat-icon mat-list-icon>home</mat-icon>
+                    <a mat-line>Home</a>
+                </mat-list-item>
+                <mat-list-item class="nav-item" [routerLink]="['/projects']" >
+                    <mat-icon mat-list-icon>garage</mat-icon>
+                    <a mat-line>Projects</a>
+                </mat-list-item>
+                <mat-list-item class="nav-item" [routerLink]="['/forum']">
+                    <mat-icon mat-list-icon>forum</mat-icon>
+                    <a mat-line>Forum</a>
+                </mat-list-item>
+            </mat-nav-list>
+        </mat-sidenav>
+
+        <mat-sidenav-content>
+            <router-outlet></router-outlet>
+        </mat-sidenav-content>
+        
+    </mat-sidenav-container>
 </div>

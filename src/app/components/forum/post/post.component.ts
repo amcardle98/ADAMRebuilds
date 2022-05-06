@@ -8,7 +8,6 @@ import { User } from 'app/services/user';
 import { switchMap, map, shareReplay, combineLatest } from 'rxjs';
 import { Response } from 'app/models/response';
 import { FormControl, Validators } from '@angular/forms';
-import { doc } from 'firebase/firestore';
 
 @UntilDestroy()
 @Component({

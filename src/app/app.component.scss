@@ -7,8 +7,23 @@
 
     justify-content: stretch;
 
-    router-outlet + * {
+    mat-sidenav-container {
         flex-grow: 1;
-        flex-basis: 1fr;
+    }
+    
+    .shell-sidenav {
+        min-width: 200px;
+
+        .sidenav-nav-list {
+            width: 100%;
+
+            .nav-item {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                justify-content: stretch;
+                align-items: center;
+            }
+        }
     }
 }

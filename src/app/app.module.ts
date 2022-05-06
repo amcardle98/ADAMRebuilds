@@ -8,10 +8,13 @@ import { HomePageComponent } from './components/home-page/home-page.component';
 import { ProjectPageComponent } from './components/project-page/project-page.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { NavbarButtonComponent } from './widgets/navbar-button/navbar-button.component';
 import { environment } from '../environments/environment';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore, initializeFirestore } from '@angular/fire/firestore';
+import {
+  provideFirestore,
+  getFirestore,
+  initializeFirestore,
+} from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import {
   AngularFirestore,
@@ -48,7 +51,11 @@ import { GalleryImageDetailsComponent } from './components/gallery-images/galler
 import { CommentComponent } from './components/gallery-images/gallery-image-details/comment/comment.component';
 import { getApp } from '@angular/fire/app';
 import { NewResponseComponent } from './components/forum/new-response/new-response.component';
-import {MatCardModule} from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
@@ -57,7 +64,6 @@ import {MatCardModule} from '@angular/material/card';
     ProjectPageComponent,
     LoginPageComponent,
     NavbarComponent,
-    NavbarButtonComponent,
     ForumComponent,
     SignUpComponent,
     ForgotPasswordComponent,
@@ -80,7 +86,9 @@ import {MatCardModule} from '@angular/material/card';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     provideAuth(() => getAuth()),
-    provideFirestore(() => initializeFirestore(getApp(), { ignoreUndefinedProperties: true })),
+    provideFirestore(() =>
+      initializeFirestore(getApp(), { ignoreUndefinedProperties: true })
+    ),
     provideStorage(() => getStorage()),
     AngularFirestoreModule,
     AngularFireStorageModule,
@@ -96,7 +104,11 @@ import {MatCardModule} from '@angular/material/card';
     MatProgressSpinnerModule,
     MatIconModule,
     MatDividerModule,
-    MatCardModule
+    MatCardModule,
+    MatMenuModule,
+    MatSidenavModule,
+    MatListModule,
+    MatToolbarModule,
   ],
   providers: [AuthService, AngularFirestore],
   bootstrap: [AppComponent],
