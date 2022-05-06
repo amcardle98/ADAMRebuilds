@@ -55,7 +55,7 @@ export class ProjectPageComponent implements OnInit {
 
   ngOnInit() {
     //Watch the route parameters in the address bar
-    const id$ = this.route.data.pipe(
+    const id$ = this.route.params.pipe(
       //Stops a memory leak by unsubscribing when the component is destroyed.
       untilDestroyed(this),
 

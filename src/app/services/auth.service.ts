@@ -7,16 +7,21 @@ import {
   AngularFirestoreDocument,
 } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, map, Subscription } from 'rxjs';
-import { HomePageComponent } from '../components/home-page/home-page.component';
+import {
+  filter,
+  firstValueFrom,
+  map,
+  ReplaySubject,
+  Subscription,
+  take,
+} from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-
   userData: User | null; // Save logged in user data
   private currentUserSubscription?: Subscription;
-  private userData$ = new BehaviorSubject<User | null>(null);
+  private userData$ = new ReplaySubject<User | null>(1);
 
   constructor(
     public afs: AngularFirestore, // Inject Firestore service
@@ -29,12 +34,16 @@ export class AuthService {
     this.afAuth.user.subscribe((user) => {
       this.currentUserSubscription?.unsubscribe();
       if (user) {
-        this.currentUserSubscription = this.afs.collection('users').doc(user.uid).get()
+        this.currentUserSubscription = this.afs
+          .collection('users')
+          .doc(user.uid)
+          .get()
           .pipe(
             map((userDoc) => {
               return new User(user, (userDoc.data() as any).roles as Roles);
             })
-          ).subscribe({
+          )
+          .subscribe({
             next: (u) => this.userData$.next(u),
           });
       } else {
@@ -43,35 +52,37 @@ export class AuthService {
     });
   }
   // Sign in with email/password
-  SignIn(email: string, password: string) {
-    return this.afAuth
-      .signInWithEmailAndPassword(email, password)
-      .then((result) => {
-        this.ngZone.run(() => {
-          this.router.navigate(['home']);
-        });
-        this.SetUserData(result.user);
-      })
-      .catch((error) => {
-        window.alert(error.message);
+  async SignIn(email: string, password: string) {
+    try {
+      const result = await this.afAuth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+      this.ngZone.run(() => {
+        this.router.navigate(['home']);
       });
+      this.SetUserData(result.user);
+    } catch (error: any) {
+      window.alert(error.message);
+    }
   }
   // Sign up with email/password
-  SignUp(email: string, password: string) {
-    return this.afAuth
-      .createUserWithEmailAndPassword(email, password)
-      .then((result) => {
-        /* Call the SendVerificaitonMail() function when new user sign 
-        up and returns promise */
-        this.SendVerificationMail();
-        this.SetUserData(result.user);
-      })
-      .catch((error) => {
-        window.alert(error.message);
-      });
+  async SignUp(email: string, password: string) {
+    try {
+      const result = await this.afAuth.createUserWithEmailAndPassword(
+        email,
+        password
+      );
+      /* Call the SendVerificaitonMail() function when new user sign
+      up and returns promise */
+      this.SendVerificationMail();
+      this.SetUserData(result.user);
+    } catch (error: any) {
+      window.alert(error.message);
+    }
   }
   // Send email verfificaiton when new user sign up
-  SendVerificationMail() {
+  async SendVerificationMail() {
     return this.afAuth.currentUser
       .then((u: any) => u.sendEmailVerification())
       .then(() => {
@@ -79,42 +90,51 @@ export class AuthService {
       });
   }
   // Reset Forggot password
-  ForgotPassword(passwordResetEmail: string) {
+  async ForgotPassword(passwordResetEmail: string) {
     return this.afAuth
       .sendPasswordResetEmail(passwordResetEmail)
       .then(() => {
         window.alert('Password reset email sent, check your inbox.');
       })
-      .catch((error) => {
-        window.alert(error);
+      .catch((error: any) => {
+        window.alert(error.message);
       });
   }
   // Returns true when user is logged in and email is verified
-  get isLoggedIn(): boolean {
-    return this.userData !== null;
+  isLoggedIn(): Promise<boolean> {
+    return firstValueFrom(
+      this.userData$.pipe(
+        take(1),
+        map((user) => user !== null)
+      )
+    );
   }
   // Sign in with Google
-  GoogleAuth() {
+  async GoogleAuth() {
     return this.AuthLogin(new auth.GoogleAuthProvider()).then((res: any) => {
       if (res) {
         this.router.navigate(['home']);
-        console.log(res.authData)
+        console.log(res.authData);
       }
     });
   }
   // Auth logic to run auth providers
-  AuthLogin(provider: any) {
+  async AuthLogin(provider: any) {
     return this.afAuth
       .signInWithPopup(provider)
       .then((result) => {
-        this.ngZone.run(() => {
+        this.ngZone.run(async () => {
+          //Wait for the user to be loaded, or else auth guard will still see no user
+          await firstValueFrom(
+            this.userData$.pipe(filter((user) => user !== null))
+          );
           this.router.navigate(['home']);
         });
         this.SetUserData(result.user);
         console.log(result.user);
       })
-      .catch((error) => {
-        window.alert(error);
+      .catch((error: any) => {
+        window.alert(error.message);
       });
   }
   /* Setting up user data when sign in with username/password, 
@@ -138,14 +158,14 @@ export class AuthService {
     });
   }
   // Sign out
-  SignOut() {
+  async SignOut() {
     return this.afAuth.signOut().then(() => {
       localStorage.removeItem('user');
       this.router.navigate(['login']);
     });
   }
 
-  WatchCurrentUser(){
+  WatchCurrentUser() {
     return this.userData$.asObservable();
   }
 }

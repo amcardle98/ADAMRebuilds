@@ -20,7 +20,7 @@
 <div class="container">
     <div class="slider">
         <div *ngFor="let item of lastWeekGalleryImages$ | async">
-            <img class="slide" style="padding: 10px;" src={{item.imageUrl}} alt="" (click)="openGalleryDetail(item)">
+            <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
         </div>
     </div>
 </div>

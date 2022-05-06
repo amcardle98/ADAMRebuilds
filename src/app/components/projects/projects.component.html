@@ -1,0 +1,29 @@
+<div class="root">
+    <div class="admin-tools" *ngIf="currentUserIsAdmin">
+        <span>Hey admin!</span>
+        <button mat-raised-button color="primary">Add New Project</button>
+    </div>
+    <div class="container">
+    
+        <mat-progress-spinner *ngIf="firstLoad" mode="indeterminate"></mat-progress-spinner>
+    
+        <div class="cards">
+            <mat-card class="project-card" *ngFor="let project of projects">
+                <mat-card-header>
+                    <mat-card-title>
+                        {{project.title}}
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        {{project.ownerName}}
+                    </mat-card-subtitle>
+                </mat-card-header>
+                
+                <img mat-card-image *ngIf="project.latestPictureUrl" [src]="project.latestPictureUrl">
+                <mat-card-actions>
+                    <button mat-stroked-button [routerLink]="[project.id]">Go To Project</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    
+    </div>
+</div>

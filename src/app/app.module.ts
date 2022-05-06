@@ -56,6 +56,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ProjectsComponent } from './components/projects/projects.component';
 
 @NgModule({
   declarations: [
@@ -79,6 +80,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     GalleryImageDetailsComponent,
     CommentComponent,
     NewResponseComponent,
+    ProjectsComponent,
   ],
   imports: [
     BrowserModule,
