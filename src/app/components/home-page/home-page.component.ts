@@ -29,7 +29,7 @@ export class HomePageComponent implements OnInit {
   today = new Date();
   oneWeekAgo = new Date();
   twoWeekAgo = new Date();
-  
+
   // setDate(new Date().getDate() - 7);
   // setDate(new Date().getDate() - 14);
 
@@ -43,7 +43,6 @@ export class HomePageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.oneWeekAgo.setDate(this.oneWeekAgo.getDate() - 7);
     this.twoWeekAgo.setDate(this.oneWeekAgo.getDate() - 14);
     //Watch the entire "projects" collection for changes
@@ -116,33 +115,65 @@ export class HomePageComponent implements OnInit {
 
     this.thisWeekGalleryImages$ = allGalleryImages$.pipe(
       map((galleryImages) => {
-        return galleryImages.filter((item) => {
-          if (!item.dateUploaded) {
-            return false;
-          }
+        return galleryImages
+          .filter(
+            (item): item is GalleryViewModel & { dateUploaded: string } => {
+              if (!item.dateUploaded) {
+                return false;
+              }
 
-          return (
-            this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) < 7 
-          );
-        });
+              return (
+                this.dateDifference(
+                  this.today,
+                  new Date(Date.parse(item.dateUploaded))
+                ) < 7
+              );
+            }
+          )
+          .sort((a, b) => {
+            return (
+              new Date(Date.parse(b.dateUploaded)).getTime() -
+              new Date(Date.parse(a.dateUploaded)).getTime()
+            );
+          });
       })
     );
 
     this.lastWeekGalleryImages$ = allGalleryImages$.pipe(
       map((galleryImages) => {
-        return galleryImages.filter((item) => {
-          if (!item.dateUploaded) {
-            return false;
-          }
+        return galleryImages
+          .filter(
+            (item): item is GalleryViewModel & { dateUploaded: string } => {
+              if (!item.dateUploaded) {
+                return false;
+              }
 
-          console.log(this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) >= 7 );
-          return (
-            // new Date(Date.parse(item.dateUploaded)).getDate() >=
-            //   new Date().getDate() - this.twoWeekAgo &&
-            this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) >= 7 &&
-            this.dateDifference(this.today, new Date(Date.parse(item.dateUploaded))) < 14
-          );
-        });
+              console.log(
+                this.dateDifference(
+                  this.today,
+                  new Date(Date.parse(item.dateUploaded))
+                ) >= 7
+              );
+              return (
+                // new Date(Date.parse(item.dateUploaded)).getDate() >=
+                //   new Date().getDate() - this.twoWeekAgo &&
+                this.dateDifference(
+                  this.today,
+                  new Date(Date.parse(item.dateUploaded))
+                ) >= 7 &&
+                this.dateDifference(
+                  this.today,
+                  new Date(Date.parse(item.dateUploaded))
+                ) < 14
+              );
+            }
+          )
+          .sort((a, b) => {
+            return (
+              new Date(Date.parse(b.dateUploaded)).getTime() -
+              new Date(Date.parse(a.dateUploaded)).getTime()
+            );
+          });
       })
     );
 
@@ -159,9 +190,17 @@ export class HomePageComponent implements OnInit {
     const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
     // Discard the time and time-zone information.
-    const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
-    const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+    const utc1 = Date.UTC(
+      date1.getFullYear(),
+      date1.getMonth(),
+      date1.getDate()
+    );
+    const utc2 = Date.UTC(
+      date2.getFullYear(),
+      date2.getMonth(),
+      date2.getDate()
+    );
 
-    return Math.floor((utc2 - utc1) / _MS_PER_DAY); 
+    return Math.floor((utc2 - utc1) / _MS_PER_DAY);
   }
 }
