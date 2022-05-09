@@ -1,8 +1,15 @@
 <!-- <app-navbar></app-navbar>
 <app-home-page></app-home-page> -->
+
+<ng-template #loadingApplication>
+    <div class="app-loading">
+        <mat-progress-spinner mode="indeterminate">Loading...</mat-progress-spinner>
+    </div>
+</ng-template>
+
 <div class="mainFlex">
     <app-navbar (menuClick)="!sidenav.opened ? sidenav.open() : sidenav.close()"></app-navbar>
-    <mat-sidenav-container #sidenavContainer>
+    <mat-sidenav-container #sidenavContainer >
 
         <mat-sidenav #sidenav class="shell-sidenav">
             <mat-nav-list class="sidenav-nav-list">
@@ -21,8 +28,8 @@
             </mat-nav-list>
         </mat-sidenav>
 
-        <mat-sidenav-content>
-            <router-outlet></router-outlet>
+        <mat-sidenav-content >
+            <router-outlet *ngIf="authenticationLoaded else loadingApplication"></router-outlet>
         </mat-sidenav-content>
         
     </mat-sidenav-container>
