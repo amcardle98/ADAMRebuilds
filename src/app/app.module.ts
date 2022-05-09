@@ -53,6 +53,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ProjectsComponent } from './components/projects/projects.component';
+import { ProfileIconComponent } from './components/profile-icon/profile-icon.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { ProjectsComponent } from './components/projects/projects.component';
     CommentComponent,
     NewResponseComponent,
     ProjectsComponent,
+    ProfileIconComponent,
   ],
   imports: [
     BrowserModule,

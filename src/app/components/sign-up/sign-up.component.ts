@@ -3,7 +3,7 @@ import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AuthService } from 'app/services/auth.service';
-import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, delay, filter, firstValueFrom, of } from 'rxjs';
 
 @UntilDestroy()
 @Component({
@@ -82,12 +82,21 @@ export class SignUpComponent implements OnInit {
   private async getUserAndNavigate() {
     this.loadingNavigation$.next(true);
 
-    const nonNullUser = await firstValueFrom(
-      this.authService.WatchCurrentUser().pipe(
-        untilDestroyed(this),
-        filter((user) => user !== null)
-      )
-    );
+    // Wait for a non-null user to be emitted by auth service, or until
+    // the other observable emits null (in 10 seconds)
+    const nonNullUser = await Promise.race([
+      firstValueFrom(
+        this.authService.WatchCurrentUser().pipe(
+          untilDestroyed(this),
+          filter((user) => user !== null)
+        )
+      ),
+      firstValueFrom(of(null).pipe(delay(10000))),
+    ]);
+
+    if (!nonNullUser) {
+      throw new Error('No user was instantiated');
+    }
 
     this.router.navigate(['/home']);
 

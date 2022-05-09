@@ -5,8 +5,7 @@
     <span> A.D.A.M Rebuilds</span>
     <span class="spacer"></span>
     <div>
-        <button class="profile-button" mat-fab *ngIf="currentUser" (click)="authService.SignOut()" [style.backgroundImage]="'url(' + photoURL + ')'">
-        </button>
+        <app-profile-icon *ngIf="currentUser" [userUid]="currentUser.uid"></app-profile-icon>
         <button mat-stroked-button *ngIf="!currentUser" routerLink="login">Login</button>
         <!-- <app-navbar-button *ngIf="currentUser" [text]="'Logout'" (click)="authService.SignOut()"></app-navbar-button> -->
     </div>

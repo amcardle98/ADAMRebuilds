@@ -5,9 +5,11 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AuthService } from 'app/services/auth.service';
 import {
   BehaviorSubject,
+  delay,
   distinctUntilChanged,
   filter,
   firstValueFrom,
+  of,
 } from 'rxjs';
 
 @UntilDestroy()
@@ -111,12 +113,21 @@ export class LoginPageComponent implements OnInit {
   private async getUserAndNavigate() {
     this.loadingNavigation$.next(true);
 
-    const nonNullUser = await firstValueFrom(
-      this.authService.WatchCurrentUser().pipe(
-        untilDestroyed(this),
-        filter((user) => user !== null)
-      )
-    );
+    // Wait for a non-null user to be emitted by auth service, or until
+    // the other observable emits null (in 10 seconds)
+    const nonNullUser = await Promise.race([
+      firstValueFrom(
+        this.authService.WatchCurrentUser().pipe(
+          untilDestroyed(this),
+          filter((user) => user !== null)
+        )
+      ),
+      firstValueFrom(of(null).pipe(delay(10000))),
+    ]);
+
+    if (!nonNullUser) {
+      throw new Error('No user was instantiated');
+    }
 
     this.router.navigate(['/home']);
 

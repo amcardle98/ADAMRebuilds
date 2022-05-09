@@ -1,7 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AuthService } from 'app/services/auth.service';
 import { User } from 'app/services/user';
 
+@UntilDestroy()
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -10,17 +12,17 @@ import { User } from 'app/services/user';
 export class NavbarComponent implements OnInit {
   currentUser: User | null;
 
-  photoURL: string | null;
-
   @Output() menuClick: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor(public authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   ngOnInit(): void {
-    this.authService.WatchCurrentUser().subscribe((user) => {
-      this.currentUser = user;
-      this.photoURL = user?.photoURL ?? null;
-    });
+    this.authService
+      .WatchCurrentUser()
+      .pipe(untilDestroyed(this))
+      .subscribe((user) => {
+        this.currentUser = user;
+      });
   }
 
   onMenuClick(): void {

@@ -1,0 +1,10 @@
+<button class="profile-button" mat-fab [style.backgroundImage]="backgroundImageUrl" [matMenuTriggerFor]="menu">
+</button>
+
+<mat-menu #menu="matMenu">
+    <ng-container *ngIf="currentUser?.uid === userUid">
+        <button mat-menu-item (click)="logOut()">Log out</button>
+    </ng-container>
+    <button mat-menu-item disabled>Profile</button>
+</mat-menu>
+
