@@ -1,36 +1,48 @@
 <div class="displayTable">
-    <div class="displayTableCell">
-      <div class="authBlock">
-        <h3>Sign In</h3>
-        <div class="formGroupControl">
-          <div class="formGroup">
-            <input type="text" class="formControl" placeholder="Username" #userName required>
-          </div>
-          <div class="formGroup">
-            <input type="password" class="formControl" placeholder="Password" #userPassword required>
-          </div>
-        </div>
-        <!-- Calling SignIn Api from AuthService -->
-        <div class="formGroup">
-          <input type="button" class="btn btnPrimary" value="Log in" (click)="authService.SignIn(userName.value, userPassword.value)">
-        </div>
-        <div class="formGroup">
-          <span class="or"><span class="orInner">Or</span></span>
-        </div>
-        <!-- Calling GoogleAuth Api from AuthService -->
-        <div class="formGroup">
-          <button type="button" class="btn googleBtn" (click)="authService.GoogleAuth()">
-            <i class="fab fa-google-plus-g"></i>
-            Log in with Google
-          </button>
-        </div>
-        <div class="forgotPassword">
-          <span routerLink="/forgot-password">Forgot Password?</span>
-        </div>
-      </div>
-      <div class="redirectToLogin">
-        <span>Don't have an account?<span class="redirect" routerLink="/signup" style="cursor: pointer"> Sign Up</span></span>
-      </div>
+
+  <mat-card class="loginCard">
+
+    <div *ngIf="loadingNavigation$ | async" class="loadingOverlay">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
     </div>
-  </div>
+
+    <mat-card-header class="col center">
+      <mat-card-title class="col center title">
+        Login
+      </mat-card-title>
+      <mat-card-subtitle class="col center">
+        <span class="statusMessage" *ngIf="waitingForGoogleAuth$ | async">Waiting for Google...</span>
+        <span class="errorMessage" *ngFor="let message of statusMessages$ | async">{{message}}</span>
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="centerAlignedCardContent">
+      <form class="formFields">
+        <mat-form-field class="field">
+          <mat-label>Email</mat-label>
+          <input matInput type="text" class="formControl"  [formControl]="emailControl">
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" class="formControl" [formControl]="passwordControl">
+        </mat-form-field>
+        <input type="submit" hidden (click)="loginTraditional()">
+      </form>
+
+      <div class="buttonContainer">
+        <button mat-raised-button (click)="loginTraditional()">Log in</button>
+        <span class="or">Or</span>
+        <button mat-raised-button color="primary" (click)="loginGoogle()">Log in with Google</button>
+      </div>
+
+      <div class="redirectToSignup">
+        <span>Don't have an account? <a class="redirect" routerLink="/signup">Sign Up</a></span>
+      </div>
+
+      <div class="forgotPassword">
+        <span routerLink="/forgot-password">Forgot Password?</span>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>
   

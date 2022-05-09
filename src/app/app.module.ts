@@ -10,11 +10,7 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { environment } from '../environments/environment';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import {
-  provideFirestore,
-  getFirestore,
-  initializeFirestore,
-} from '@angular/fire/firestore';
+import { provideFirestore, initializeFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import {
   AngularFirestore,

@@ -1,55 +1,44 @@
 <div class="displayTable">
-    <div class="displayTableCell">
-      <div class="authBlock">
-        <h3>Sign Up</h3>
-        <div class="formGroupControl">
-          <div class="formGroup">
-            <input
-              type="email"
-              class="formControl"
-              placeholder="Email Address"
-              #userEmail
-              required
-            />
-          </div>
-          <div class="formGroup">
-            <input
-              type="password"
-              class="formControl"
-              placeholder="Password"
-              #userPwd
-              required
-            />
-          </div>
-        </div>
-        <div class="formGroup">
-          <input
-            type="button"
-            class="btn btnPrimary"
-            value="Sign Up"
-            (click)="authService.SignUp(userEmail.value, userPwd.value)"
-          />
-        </div>
-        <div class="formGroup">
-          <span class="or"><span class="orInner">Or</span></span>
-        </div>
-        <!-- Continue with Google -->
-        <div class="formGroup">
-          <button
-            type="button"
-            class="btn googleBtn"
-            (click)="authService.GoogleAuth()"
-          >
-            <i class="fab fa-google-plus-g"></i>
-            Continue with Google
-          </button>
-        </div>
-      </div>
-      <div class="redirectToLogin">
-        <span
-          >Already have an account?
-          <span class="redirect" routerLink="/sign-in">Log In</span></span
-        >
-      </div>
+
+  <mat-card class="signUpCard">
+
+    <div *ngIf="loadingNavigation$ | async" class="loadingOverlay">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
     </div>
-  </div>
+
+    <mat-card-header class="col center">
+      <mat-card-title class="col center title">
+        Sign up
+      </mat-card-title>
+      <mat-card-subtitle class="col center">
+        <span class="statusMessage" *ngIf="waitingForGoogleAuth$ | async">Waiting for Google...</span>
+        <span class="errorMessage" *ngFor="let message of errorMessages$ | async">{{message}}</span>
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="centerAlignedCardContent">
+      <form class="formFields">
+        <mat-form-field class="field">
+          <mat-label>Email</mat-label>
+          <input matInput type="text" class="formControl"  [formControl]="emailControl">
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" class="formControl" [formControl]="passwordControl">
+        </mat-form-field>
+        <input type="submit" hidden (click)="signUpTraditional()">
+      </form>
+
+      <div class="buttonContainer">
+        <button mat-raised-button color="accent" (click)="signUpTraditional()">Sign up</button>
+        <span class="or">Or</span>
+        <button mat-raised-button color="primary" (click)="loginGoogle()">Log in with Google</button>
+      </div>
+
+      <div class="redirectToLogin">
+        <span>Already have an account? <a class="redirect" routerLink="/login">Log in</a></span>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>
+  
