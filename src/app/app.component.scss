@@ -34,4 +34,9 @@
         justify-content: center;
         align-items: center;
     }
+
+    .root-margin {
+        height: 100%;
+        margin: max(2vh, 12px) max(2vw, 9px);
+    }
 }

@@ -1,27 +1,49 @@
 .container {
+
+    height: 100%;
+
     display: flex;
     flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-around;
 
+    max-width: 1600px;
+
     .content {
-        border-radius: 10px;
-        grid-row-start: 2;
-        margin-top: 100px;
+
+        flex-basis: 500px;
+        flex-grow: 1;
+        flex-shrink: 1;
 
         display:flex;
         flex-direction: column;
         align-items: stretch;
-        justify-content: flex-start;
+        justify-content: center;
 
         .header {
             text-align: center;
+        }
+
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            width: fit-content;
         }
     
         .detail-card {
             margin: 20px;
             min-height: 200px;
+
+            display: relative;
+
+            .edit-icon {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
 
             @media screen and (max-width: 768px) {
                 margin: 10px;
@@ -31,6 +53,51 @@
             p {
                 padding-top: 10px;
             }
+
+            mat-card-header {
+                [mat-card-avatar] {
+                    mat-icon {
+                        font-size: 40px;
+                    }
+                }
+        
+                mat-icon[mat-card-avatar] {
+                    font-size: 40px;
+                }
+            }
+        }
+        
+    }
+
+    .gallery{
+
+        flex-basis: auto;
+        flex-grow: 1;
+        flex-shrink: 2;
+
+        display: grid;
+        grid-column-start: 2;
+        grid-row-start: 2;
+
+        
+
+        .galleryContent {
+            margin-left: 0px;
+            background-color: lightgray;
+        }
+        
+        
+        .galleryBar {
+            grid-column-start: 2;
+            grid-row-start: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .galleryBar span {
+            float: right;
+            padding-left: 181px;
         }
         
     }
@@ -48,32 +115,8 @@
     box-shadow: 1px 5px 5px rgb(184, 184, 184);
 }
 
-.galleryContent {
-    margin-left: 0px;
-    background-color: lightgray;
-}
 
 
-.galleryBar {
-    grid-column-start: 2;
-    grid-row-start: 1;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-
-.galleryBar span {
-    float: right;
-    padding-left: 181px;
-}
-
-.gallery{
-    display: grid;
-    grid-column-start: 2;
-    grid-row-start: 2;
-    margin-left: 50px;
-    margin-right: 50px;
-}
 
 
 
@@ -165,4 +208,6 @@
         box-shadow: 1px 5px 5px grey;
         padding: 8px;
     }
+
+    
 }

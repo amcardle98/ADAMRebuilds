@@ -28,8 +28,10 @@
             </mat-nav-list>
         </mat-sidenav>
 
-        <mat-sidenav-content >
-            <router-outlet *ngIf="authenticationLoaded else loadingApplication"></router-outlet>
+        <mat-sidenav-content>
+            <div class="root-margin">
+                <router-outlet *ngIf="authenticationLoaded else loadingApplication"></router-outlet>
+            </div>
         </mat-sidenav-content>
         
     </mat-sidenav-container>

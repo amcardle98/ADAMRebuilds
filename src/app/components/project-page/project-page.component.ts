@@ -1,10 +1,16 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  TemplateRef,
+} from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { UploadTaskSnapshot } from '@angular/fire/compat/storage/interfaces';
-import { FormControl } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { CarProject, GalleryData } from 'app/models/car-projects';
 import { AuthService } from 'app/services/auth.service';
@@ -21,9 +27,15 @@ export class ProjectPageComponent implements OnInit {
   closeResult = '';
   file?: File;
 
-  descText = new FormControl(null);
-  updatedText = new FormControl(null);
-  compText = new FormControl(null);
+  description = new FormControl(null);
+  updates = new FormControl(null);
+  completed = new FormControl(null);
+
+  private cardControls = new FormGroup({
+    description: this.description,
+    completed: this.completed,
+    updates: this.updates,
+  });
 
   projectID: string;
   currentUser: User | null;
@@ -37,12 +49,16 @@ export class ProjectPageComponent implements OnInit {
 
   timer: ReturnType<typeof setTimeout> = setTimeout(() => '', 5000);
 
+  @ViewChild('editBody')
+  editBodyTemplate: TemplateRef<AbstractControl>;
+  private editBodyDialogRef: MatDialogRef<AbstractControl> | null;
+
   constructor(
     private storage: AngularFireStorage,
-    private modalService: NgbModal,
     private fireStore: AngularFirestore,
     private route: ActivatedRoute,
-    private afs: AuthService
+    private afs: AuthService,
+    private dialog: MatDialog
   ) {}
 
   @Input() title: string | undefined;
@@ -89,9 +105,9 @@ export class ProjectPageComponent implements OnInit {
         this.project.updates = this.project?.updates ?? [];
 
         //Populate the form fields
-        this.descText.setValue(this.project?.description ?? null);
-        this.updatedText.setValue(this.project?.updates ?? null);
-        this.compText.setValue(this.project?.completed ?? null);
+        this.description.setValue(this.project?.description ?? null);
+        this.updates.setValue(this.project?.updates ?? null);
+        this.completed.setValue(this.project?.completed ?? null);
       });
 
     id$
@@ -223,40 +239,47 @@ export class ProjectPageComponent implements OnInit {
     delete this.file;
   }
 
-  open(content) {
+  open(formControlName: string) {
     if (!this.currentUser?.roles.admin && !this.currentUser?.roles.author) {
       return;
     }
-    console.log(content);
-    this.modalService
-      .open(content, { ariaLabelledBy: 'modal-basic-title' })
-      .result.then(
-        (result) => {
-          this.closeResult = `Closed with: ${result}`;
-        },
-        (reason) => {
-          this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-          console.log(reason);
-        }
-      );
-  }
 
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
+    const formControlToUse = this.cardControls.get(formControlName);
+
+    if (!formControlToUse) {
+      throw new Error('Could not find form control');
     }
+
+    this.editBodyDialogRef = this.dialog.open<AbstractControl, AbstractControl>(
+      this.editBodyTemplate,
+      {
+        data: formControlToUse,
+        width: '400px',
+      }
+    );
   }
 
-  saveClick() {
+  async closeWithControl(control: AbstractControl) {
+    if (!control) {
+      throw new Error('No control provided');
+    }
+
+    if (!this.editBodyDialogRef) {
+      return;
+    }
+
+    await this.saveClick();
+
+    this.editBodyDialogRef.close();
+    this.editBodyDialogRef = null;
+  }
+
+  async saveClick() {
     if (this.project) {
-      this.project.description = this.descText.value;
-      this.project.completed = this.compText.value;
-      this.project.updates = this.updatedText.value;
-      const docRef = this.fireStore
+      this.project.description = this.description.value;
+      this.project.completed = this.completed.value;
+      this.project.updates = this.updates.value;
+      const docRef = await this.fireStore
         .collection('projects')
         .doc(this.projectID)
         .set(this.project);

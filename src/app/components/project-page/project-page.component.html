@@ -1,115 +1,86 @@
 
-<ng-template #descContent let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-    </div>
-    <div class="modal-body">
-      <form>
-        <div class="mb-3">
-            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="descText">
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
-    </div>
-  </ng-template>
-  <ng-template #updateContent let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-    </div>
-    <div class="modal-body">
-      <form>
-        <div class="mb-3">
-            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="updatedText">
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
-    </div>
-  </ng-template>
-  <ng-template #compContent let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-    </div>
-    <div class="modal-body">
-      <form>
-        <div class="mb-3">
-            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="compText">
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
-    </div>
-  </ng-template>
-  <ng-template #imageContent let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Edit</h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-    </div>
-    <div class="modal-body">
-      <form>
-        <div class="mb-3">
-            <input type="text" #input name="" id="" cols="10" rows="10" style="resize: none; border: none; width: 100%;" placeholder="Enter updates here" [formControl]="descText">
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click'); saveClick()">Save</button>
-    </div>
-  </ng-template>
+<ng-template #editBody let-form>
+  <h1 mat-dialog-title class="modal-title" id="modal-basic-title">Edit</h1>
+  <mat-dialog-content>
+    <form>
+      <mat-form-field style="width: 100%;" appearance="outline">
+        <textarea matInput [cdkTextareaAutosize]="true" [cdkAutosizeMinRows]="5" [formControl]="form"></textarea>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button type="button" class="btn btn-outline-dark" (click)="closeWithControl(form)">Save</button>
+  </mat-dialog-actions>
+</ng-template>
 
 <div class="container" *ngIf="project">
     
 
   <div class="content" *ngIf="project">
 
-    <div class="header">
-      <h1>
-        Welcome to <strong>{{project.title}}</strong> build
-      </h1>
+    <div class="card-container">
+      <div class="header">
+        <h1>
+          Welcome to <strong>{{project.title}}</strong> build
+        </h1>
+      </div>
+  
+      <mat-card class="detail-card">
+        <button mat-icon-button class="edit-icon" (click)="open('description')">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <mat-card-header>
+          <div mat-card-avatar>
+            <mat-icon >description</mat-icon>
+          </div>
+          <mat-card-title>
+            <span>Description</span>
+          </mat-card-title>
+          <mat-card-subtitle>
+            <span>Description of project backstory and goals</span>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{project.description}}</p>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="detail-card">
+        <button mat-icon-button class="edit-icon" (click)="open('completed')">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <mat-card-header>
+          <mat-icon mat-card-avatar>incomplete_circle</mat-icon>
+          <mat-card-title>
+            <span>Completion Status</span>
+          </mat-card-title>
+          <mat-card-subtitle>
+            <span>Current future and in-progress tasks</span>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{project.completed}}</p>
+        </mat-card-content>
+      </mat-card>
+  
+      <mat-card class="detail-card">
+        <button mat-icon-button class="edit-icon" (click)="open('updates')">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <mat-card-header>
+          <mat-icon mat-card-avatar>new_releases</mat-icon>
+          <mat-card-title>
+            <span>Updates</span>
+          </mat-card-title>
+          <mat-card-subtitle>
+            <span>Latest updates and new details</span>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{project.updates}}</p>
+        </mat-card-content>
+      </mat-card>
     </div>
-
-    <mat-card class="detail-card">
-      <mat-card-header>
-        <mat-card-title>
-          <h4>Description</h4>
-          <mat-divider></mat-divider>
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>{{project.description}}</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="detail-card">
-      <mat-card-header>
-        <mat-card-title>
-          <h4>Updates</h4>
-          <mat-divider></mat-divider>
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>{{project.updates}}</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="detail-card">
-      <mat-card-header>
-        <mat-card-title>
-          <h4>Completion Status</h4>
-          <mat-divider></mat-divider>
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>{{project.completed}}</p>
-      </mat-card-content>
-    </mat-card>
   </div>
   
   <div class="gallery">
