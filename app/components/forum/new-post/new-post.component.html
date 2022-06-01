@@ -1,0 +1,11 @@
+<div class="container">
+    <mat-form-field>
+        <mat-label>Enter post title</mat-label>
+        <input type="text" matInput [formControl]="postTitle">
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Enter post content</mat-label>
+        <textarea matInput [formControl]="postBody"></textarea>
+    </mat-form-field>
+    <button mat-button (click)="submitNewPost()">Post</button>
+</div>

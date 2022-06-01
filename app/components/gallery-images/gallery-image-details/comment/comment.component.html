@@ -1,0 +1,16 @@
+<div class="container">
+    <div class="profileImage">
+        <img *ngIf="posterPhotoUrl" [src]="posterPhotoUrl" alt="">
+    </div>
+
+    <div class="commentContent">
+        <div class="posterName">
+            <span>{{posterName}}</span>
+            <span class="delete" *ngIf="galleryComment?.userUid == this.currentUser?.uid" (click)="onDeleteComment()"><mat-icon>delete</mat-icon></span>
+        </div>
+        <div class="comment">
+            {{galleryComment?.content}}
+        </div> 
+    </div>
+
+</div>

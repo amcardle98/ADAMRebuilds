@@ -1,0 +1,30 @@
+<mat-dialog-content class="root-container">
+    <div class="imageContainer">
+        <img [src]="galleryData?.imageUrl" alt="">
+        <div>{{galleryData?.dateUploaded | date}}
+            <span class="delete"> 
+                <mat-icon class="icon" color="primary" (click)="deleteImage()">delete</mat-icon>
+            </span>
+        </div>
+    </div>
+    <div class="imageContent">
+        
+        <!--For new comment field-->
+        <div class="newCommentContainer">
+            <mat-form-field >
+                <mat-label>New Comment</mat-label>
+                <input matInput type="text" [formControl]="commentControl">
+                <mat-hint>Enter a new comment to post</mat-hint>
+                <button mat-icon-button matSuffix>
+                    <mat-icon color="primary" (click)="addComment()">add_circle</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+        <mat-divider style="margin-top: 24px"></mat-divider>
+        <div class="existingCommentsContainer">
+            <div class="comment" *ngFor="let comment of galleryData?.comments; index as i">
+                <app-comment [galleryComment]="comment" (deleteComment)="deleteComment(i)"></app-comment>
+            </div>
+        </div>
+    </div>
+</mat-dialog-content>

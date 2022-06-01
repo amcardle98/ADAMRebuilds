@@ -1,0 +1,141 @@
+.container {
+    display: grid;
+    grid-template-columns: 50%;
+    grid-template-rows: 25% 50%;
+    margin-left: auto;
+}
+
+.title {
+    padding: 20px;
+    margin-top: 50px;
+    border-radius: 10px;
+    background-color: rgb(148, 255, 255);
+    grid-column-start: 1;
+    font-size: 40px;
+    text-align: center;
+    box-shadow: 1px 5px 5px rgb(184, 184, 184);
+}
+
+.galleryContent {
+    margin-left: 0px;
+    background-color: lightgray;
+}
+
+
+.galleryBar {
+    grid-column-start: 2;
+    grid-row-start: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.galleryBar span {
+    float: right;
+    padding-left: 181px;
+}
+
+.gallery{
+    display: grid;
+    grid-column-start: 2;
+    grid-row-start: 2;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+
+.content {
+    border-radius: 10px;
+    grid-row-start: 2;
+    margin-top: 100px;
+}
+
+.description {
+    width: auto;
+    height: 100px;
+    background-color: lightgray;
+    border-radius: 0 10px 10px 10px;
+    margin-bottom: 20px;
+    box-shadow: 1px 5px 5px grey;
+}
+
+.descTitle {
+    width: 150px;
+    padding-left: 24px;
+    background-color: lightgray;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0px;
+    box-shadow: 1px 5px 5px grey;
+}
+
+.updates {
+    width: auto;
+    height: 100px;
+    background-color: lightgray;
+    border-radius: 0 10px 10px 10px;
+    margin-bottom: 20px;
+    box-shadow: 1px 5px 5px grey;
+}
+
+.updateTitle {
+    width: 150px;
+    padding-left: 24px;
+    background-color: lightgray;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0px;
+    box-shadow: 1px 5px 5px grey;
+}
+
+.completed {
+    width: auto;
+    height: 100px;
+    background-color: lightgray;
+    border-radius: 0 10px 10px 10px;
+    box-shadow: 1px 5px 5px grey;
+}
+
+.compTitle {
+    width: 150px;
+    padding-left: 24px;
+    background-color: lightgray;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0px;
+    box-shadow: 1px 5px 5px grey;
+}
+
+.ngContainer {
+    grid-row-start: 2;
+
+    .btn {
+        display: flex;
+        margin: 20px;
+        margin-left:20%;
+        background-color: rgb(148, 255, 255);
+        border-radius: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+.project-card {
+    .card-title{
+        width: fit-content;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 4px;
+        background-color: lightgray;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: 0px;
+        box-shadow: 1px 5px 5px grey;
+    }
+
+    .card-body {
+        width: auto;
+        height: 100px;
+        background-color: lightgray;
+        border-radius: 0 10px 10px 10px;
+        margin-bottom: 20px;
+        box-shadow: 1px 5px 5px grey;
+        padding: 8px;
+    }
+}

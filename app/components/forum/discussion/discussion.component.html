@@ -1,0 +1,31 @@
+
+
+<!--TODO: Add new post button-->
+
+<div class="discussion-root">
+    <div class="header">
+        <div class="title-header">
+            <h1>{{currentDiscussion?.title}}</h1>
+            <h5 *ngIf="currentDiscussion?.description">{{currentDiscussion?.description}}</h5>
+        </div>
+
+        <div class="new-post-header">
+            <button mat-stroked-button color="primary" (click)="createPost()">New post</button>
+        </div>
+    </div>
+
+    <div class="body">
+        <div *ngIf="posts$ | async as posts">
+            <h1>Posts: {{posts.length}}</h1>
+            <div *ngFor="let post of posts" class="post">
+                <!--TODO: Make a component to represent structure of a "post"-->
+                <!--When a user clicks on a post, take them to that component post, load the ID-->
+                <!--using router params, like this component does. Using the ID, go get the document.-->
+                <mat-card [routerLink]="['/forum/', discussionId, post.postId]" routerLinkActive="router-link-active"  class="forum-item-title">
+                        {{post.title}}
+                </mat-card>
+            </div>
+        </div>
+    </div>
+</div>
+

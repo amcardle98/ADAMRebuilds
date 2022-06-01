@@ -1,0 +1,26 @@
+<div class="containerTitle">
+    <h1>
+        Whats new!
+    </h1>
+</div>
+<div class="container">
+        <div class="slider">
+            <div *ngFor="let item of thisWeekGalleryImages$ | async">
+                <img class="slide" style="padding: 10px;" src="{{item.imageUrl}}" alt="{{item.caption}}" (click)="openGalleryDetail(item)">
+            </div>
+        </div>
+</div>
+<div class="divider">
+</div>
+<div class="containerTitle">
+    <h1>
+        Last week
+    </h1>
+</div>
+<div class="container">
+    <div class="slider">
+        <div *ngFor="let item of lastWeekGalleryImages$ | async">
+            <img class="slide" style="padding: 10px;" src={{item.imageUrl}} alt="" (click)="openGalleryDetail(item)">
+        </div>
+    </div>
+</div>

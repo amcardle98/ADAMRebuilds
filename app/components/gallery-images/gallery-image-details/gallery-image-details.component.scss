@@ -1,0 +1,79 @@
+
+.root-container {
+    max-height: 52.6vh;
+    display:flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: stretch;
+
+    .imageContainer {
+
+        display:flex;
+        flex-direction: column;
+
+        .subImageContainer {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        img {
+            height: 50vh;
+        }
+
+        .delete {
+            float: right;
+            justify-content: flex-end;
+
+            .icon {
+                font-variation-settings:
+                'FILL' 0,
+                'wght' 300,
+                'GRAD' 0,
+                'opsz' 48
+            }
+
+            transition-duration: 0.3s;
+            .icon:hover {
+                transform: scale(1.1);
+                cursor: pointer;
+            }
+        }
+    }
+
+    
+    
+    .imageContent {
+
+        margin-left: 24px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+
+        ::ng-deep .add-button {
+            color: black;
+        }
+
+        .newCommentContainer {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: stretch;
+
+            mat-form-field {
+                width: 100%;
+            }
+        }
+
+        .existingCommentsContainer {
+            overflow-y: scroll;
+        }
+
+        .existingCommentsContainer::-webkit-scrollbar{
+            display: none;
+        }
+    }
+}
+

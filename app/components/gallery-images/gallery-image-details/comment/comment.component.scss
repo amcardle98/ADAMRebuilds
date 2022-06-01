@@ -1,0 +1,58 @@
+.container {
+    background-color: rgb(236, 233, 233);
+    margin: 5px 0 5px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: left;
+    width: 350px;
+
+    .profileImage {
+        img {
+            margin: 5px 5px 5px 0;
+            width: 50px;
+            border: 1px solid black;
+            border-radius: 100%;
+        }
+    }
+
+    .commentContent {
+        width: 100%;
+        .posterName {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+
+
+            font-weight: bold;
+
+            .delete {
+
+                visibility: hidden;
+
+                margin-right: 0;
+                margin-left: auto;
+                align-self: flex-end;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+
+            
+        }
+    }
+
+    &:hover {
+
+        .commentContent {
+            .posterName {
+                .delete {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+}

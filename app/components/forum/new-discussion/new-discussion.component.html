@@ -1,0 +1,25 @@
+
+
+<div>
+
+    <h3>New Discussion</h3>
+
+    <form class="form" [formGroup]="newDiscussionFormGroup">
+        
+        <mat-form-field>
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" type="text">
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" type="text">
+        </mat-form-field>
+
+        <input type="submit" hidden="true">
+    </form>
+
+    <div class="form">
+        <button mat-stroked-button color="primary" (click)="submitNewForm()">Submit</button>
+    </div>
+</div>

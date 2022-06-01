@@ -1,0 +1,20 @@
+<div class="nav">
+    <div>
+        <app-navbar-button [text]="'Home'" routerLink="/home"></app-navbar-button>
+        <app-navbar-button [text]="'Rx8 Build'" routerLink="/rx8"></app-navbar-button>
+        <app-navbar-button [text]="'BMW Build'" routerLink="/bmw"></app-navbar-button>
+        <app-navbar-button [text]="'Legacy Build'" routerLink="/legacy"></app-navbar-button>
+        <app-navbar-button [text]="'AMG Build'" routerLink="/amg"></app-navbar-button>
+        <app-navbar-button [text]="'Forums'" routerLink="/forum"></app-navbar-button>
+    </div>
+    <div>
+        <h1>
+            Adam Rebuilds
+        </h1>
+    </div>
+    <div>
+        <img *ngIf="currentUser" src={{photoURL}} alt="" (click)="authService.SignOut()">
+        <app-navbar-button *ngIf="!currentUser" [text]="'Login'" routerLink="login"></app-navbar-button>
+        <!-- <app-navbar-button *ngIf="currentUser" [text]="'Logout'" (click)="authService.SignOut()"></app-navbar-button> -->
+    </div>
+</div>
